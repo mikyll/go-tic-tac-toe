@@ -48,6 +48,8 @@ type menu struct {
 }
 
 type board struct {
+	Player string
+	X, Y   int
 }
 
 type pepper struct {
@@ -62,19 +64,84 @@ func main() {
 		return
 	}
 
-	mainMenu := []menu{
+	/*mainMenu := []menu{
 		{Entry: "Single Player"},
 		{Entry: "Multiplayer"},
 		{Entry: "About"},
 		{Entry: "Quit"},
 	}
 
-	/*singlePlayerMenu := []menu{
+	singlePlayerMenu := []menu{
 		{Entry: "Easy"},
 		{Entry: "Hard"},
 		{Entry: "About"},
 		{Entry: "Back"},
-	}*/
+	}
+
+	mainMenuTemplate := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "\U000027A4  {{ .Entry | white }}",
+		Inactive: "  {{ .Entry | white }} ",
+		Selected: "\U00002023 {{ .Entry | white }}",
+	}
+
+	mainMenuPrompt := promptui.Select{
+		Label:     "--- Main Menu ---",
+		Items:     mainMenu,
+		Templates: mainMenuTemplate,
+		Size:      4,
+	}
+
+	i, _, err := mainMenuPrompt.Run()
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return
+	}
+	fmt.Printf("Chosen option %d\n", i)*/
+
+	// game
+	player := "X"
+	board := []board{
+		{Player: player, X: 1, Y: 1},
+		{Player: player, X: 1, Y: 2},
+		{Player: player, X: 1, Y: 3},
+		{Player: player, X: 2, Y: 1},
+		{Player: player, X: 2, Y: 2},
+		{Player: player, X: 2, Y: 3},
+		{Player: player, X: 3, Y: 1},
+		{Player: player, X: 3, Y: 2},
+		{Player: player, X: 3, Y: 3},
+	}
+
+	gameTemplate := &promptui.SelectTemplates{
+		Label:    "You play as X. Choose your next move",
+		Active:   "\U000027A4  (X:{{ .X | cyan }}, Y:{{ .Y | green }})",
+		Inactive: "  (X:{{ .X | cyan }}, Y:{{ .Y | green }})",
+		Selected: "\U000027A4 (X:{{ .X | cyan }}, Y:{{ .Y | green }})",
+		Details: `
+----------- Game -----------
+   1 2 3
+1 \U00002572
+2
+3
+{{ "Name:" | faint }}	{{ .Name }}
+{{ "Heat Unit:" | faint }}	{{ .HeatUnit }}
+{{ "Peppers:" | faint }}	{{ .Peppers }}`,
+	}
+
+	gamePrompt := promptui.Select{
+		Label:     "",
+		Items:     board,
+		Templates: gameTemplate,
+		Size:      4,
+	}
+
+	i, _, err := gamePrompt.Run()
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return
+	}
+	fmt.Printf("Chosen option %d\n", i)
 
 	/*peppers := []pepper{
 		{Name: "Bell Pepper", HeatUnit: 0, Peppers: 0},
@@ -87,31 +154,8 @@ func main() {
 		{Name: "Habanero", HeatUnit: 100000, Peppers: 7},
 		{Name: "Red Savina Habanero", HeatUnit: 350000, Peppers: 8},
 		{Name: "Dragon’s Breath", HeatUnit: 855000, Peppers: 9},
-	}*/
-
-	mainMenuTemplate := &promptui.SelectTemplates{
-		Label:    "{{ . }}",
-		Active:   "\U000027A4  {{ .Entry | white }}",
-		Inactive: "  {{ .Entry | white }} ",
-		Selected: "\U00002023 {{ .Entry | white }}",
 	}
-
-	mainMenuprompt := promptui.Select{
-		Label:     "--- Main Menu ---",
-		Items:     mainMenu,
-		Templates: mainMenuTemplate,
-		Size:      4,
-	}
-
-	i, _, err := mainMenuprompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
-	}
-
-	fmt.Printf("Chosen option %d\n", i)
-
-	/*templates := &promptui.SelectTemplates{
+	templates := &promptui.SelectTemplates{
 			Label:    "{{ . }}?",
 			Active:   "\U0001F336 {{ .Name | cyan }} ({{ .HeatUnit | red }})",
 			Inactive: "  {{ .Name | cyan }} ({{ .HeatUnit | red }})",
