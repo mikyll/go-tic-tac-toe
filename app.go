@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"syscall"
 
 	"github.com/manifoldco/promptui"
@@ -44,6 +43,13 @@ import (
 	}
 }*/
 
+type menu struct {
+	Entry string
+}
+
+type board struct {
+}
+
 type pepper struct {
 	Name     string
 	HeatUnit int
@@ -56,7 +62,21 @@ func main() {
 		return
 	}
 
-	peppers := []pepper{
+	mainMenu := []menu{
+		{Entry: "Single Player"},
+		{Entry: "Multiplayer"},
+		{Entry: "About"},
+		{Entry: "Quit"},
+	}
+
+	/*singlePlayerMenu := []menu{
+		{Entry: "Easy"},
+		{Entry: "Hard"},
+		{Entry: "About"},
+		{Entry: "Back"},
+	}*/
+
+	/*peppers := []pepper{
 		{Name: "Bell Pepper", HeatUnit: 0, Peppers: 0},
 		{Name: "Banana Pepper", HeatUnit: 100, Peppers: 1},
 		{Name: "Poblano", HeatUnit: 1000, Peppers: 2},
@@ -67,42 +87,64 @@ func main() {
 		{Name: "Habanero", HeatUnit: 100000, Peppers: 7},
 		{Name: "Red Savina Habanero", HeatUnit: 350000, Peppers: 8},
 		{Name: "Dragon’s Breath", HeatUnit: 855000, Peppers: 9},
+	}*/
+
+	mainMenuTemplate := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "\U000027A4  {{ .Entry | white }}",
+		Inactive: "  {{ .Entry | white }} ",
+		Selected: "\U00002023 {{ .Entry | white }}",
 	}
 
-	templates := &promptui.SelectTemplates{
-		Label:    "{{ . }}?",
-		Active:   "\U0001F336 {{ .Name | cyan }} ({{ .HeatUnit | red }})",
-		Inactive: "  {{ .Name | cyan }} ({{ .HeatUnit | red }})",
-		Selected: "\U0001F336 {{ .Name | red | cyan }}",
-		Details: `
---------- Pepper ----------
-{{ "Name:" | faint }}	{{ .Name }}
-{{ "Heat Unit:" | faint }}	{{ .HeatUnit }}
-{{ "Peppers:" | faint }}	{{ .Peppers }}`,
-	}
-
-	searcher := func(input string, index int) bool {
-		pepper := peppers[index]
-		name := strings.Replace(strings.ToLower(pepper.Name), " ", "", -1)
-		input = strings.Replace(strings.ToLower(input), " ", "", -1)
-
-		return strings.Contains(name, input)
-	}
-
-	prompt := promptui.Select{
-		Label:     "Spicy Level",
-		Items:     peppers,
-		Templates: templates,
+	mainMenuprompt := promptui.Select{
+		Label:     "--- Main Menu ---",
+		Items:     mainMenu,
+		Templates: mainMenuTemplate,
 		Size:      4,
-		Searcher:  searcher,
 	}
 
-	i, _, err := prompt.Run()
-
+	i, _, err := mainMenuprompt.Run()
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
 		return
 	}
 
-	fmt.Printf("You choose number %d: %s\n", i+1, peppers[i].Name)
+	fmt.Printf("Chosen option %d\n", i)
+
+	/*templates := &promptui.SelectTemplates{
+			Label:    "{{ . }}?",
+			Active:   "\U0001F336 {{ .Name | cyan }} ({{ .HeatUnit | red }})",
+			Inactive: "  {{ .Name | cyan }} ({{ .HeatUnit | red }})",
+			Selected: "\U0001F336 {{ .Name | red | cyan }}",
+			Details: `
+	--------- Pepper ----------
+	{{ "Name:" | faint }}	{{ .Name }}
+	{{ "Heat Unit:" | faint }}	{{ .HeatUnit }}
+	{{ "Peppers:" | faint }}	{{ .Peppers }}`,
+		}
+
+		searcher := func(input string, index int) bool {
+			pepper := peppers[index]
+			name := strings.Replace(strings.ToLower(pepper.Name), " ", "", -1)
+			input = strings.Replace(strings.ToLower(input), " ", "", -1)
+
+			return strings.Contains(name, input)
+		}
+
+		prompt := promptui.Select{
+			Label:     "Spicy Level",
+			Items:     peppers,
+			Templates: templates,
+			Size:      4,
+			Searcher:  searcher,
+		}
+
+		i, _, err := prompt.Run()
+
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
+		}
+
+		fmt.Printf("You choose number %d: %s\n", i+1, peppers[i].Name)*/
 }
