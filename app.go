@@ -8,18 +8,38 @@ import (
 	"golang.org/x/term"
 )
 
-type menu struct {
+/*type menu struct {
 	Entry string
 }
 
 type board struct {
-	X, Y int
+	X1Y1, X1Y2, X1Y3, X2Y1, X2Y2, X2Y3, X3Y1, X3Y2, X3Y3 string
+}
+
+type choices struct {
+	X, Y  int
+	Board board
 }
 
 type pepper struct {
 	Name     string
 	HeatUnit int
 	Peppers  int
+}*/
+
+type choices struct {
+	X, Y                                                 int
+	X1Y1, X1Y2, X1Y3, X2Y1, X2Y2, X2Y3, X3Y1, X3Y2, X3Y3 string
+}
+
+func printBoard(board []choices) {
+	fmt.Printf(`
+ %s | %s | %s
+---+---+---
+ %s | %s | %s
+---+---+---
+ %s | %s | %s
+ `, board[0].X1Y1, board[1].X1Y2, board[2].X1Y3, board[3].X2Y1, board[4].X2Y2, board[5].X2Y3, board[6].X3Y1, board[7].X3Y2, board[8].X3Y3)
 }
 
 func main() {
@@ -64,17 +84,29 @@ func main() {
 	fmt.Printf("Chosen option %d\n", i)*/
 
 	// game
-	player := "X"
-	board := []board{
-		{X: 1, Y: 1},
-		{X: 1, Y: 2},
-		{X: 1, Y: 3},
-		{X: 2, Y: 1},
-		{X: 2, Y: 2},
-		{X: 2, Y: 3},
-		{X: 3, Y: 1},
-		{X: 3, Y: 2},
-		{X: 3, Y: 3},
+	player := " "
+	oldBoard := []choices{
+		{X: 1, Y: 1, X1Y1: player, X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 1, Y: 2, X1Y1: " ", X1Y2: player, X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 1, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: player, X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: player, X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: player, X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: player, X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 3, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: player, X3Y2: " ", X3Y3: " "},
+		{X: 3, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: player, X3Y3: " "},
+		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: player},
+	}
+	player = "X"
+	choices := []choices{
+		{X: 1, Y: 1, X1Y1: player, X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 1, Y: 2, X1Y1: " ", X1Y2: player, X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 1, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: player, X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: player, X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: player, X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: player, X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 3, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: player, X3Y2: " ", X3Y3: " "},
+		{X: 3, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: player, X3Y3: " "},
+		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: player},
 	}
 
 	gameTemplate := &promptui.SelectTemplates{
@@ -86,12 +118,12 @@ func main() {
 			`
 ----------- Game -----------
 
+         {{ .X1Y1 }} | {{ .X1Y2}} | {{ .X1Y3 }}  {{"1" | green}}
+        ---+---+---
+         {{ .X2Y1 }} | {{ .X2Y2}} | {{ .X2Y3 }}  {{"2" | green}}
+        ---+---+---
+         {{ .X3Y1 }} | {{ .X3Y2}} | {{ .X3Y3 }}  {{"3" | green}}
          {{"1   2   3" | cyan}}
-      {{"1" | green}}    |   |   
-        ---+---+---
-      {{"2" | green}}  X |   |   
-        ---+---+---
-      {{"3" | green}}    |   |   
 
 ----------------------------
 Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
@@ -99,7 +131,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 
 	gamePrompt := promptui.Select{
 		Label:     "",
-		Items:     board,
+		Items:     choices,
 		Templates: gameTemplate,
 		Size:      4,
 	}
@@ -111,6 +143,33 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	}
 	fmt.Printf("Chosen option %d\n", i)
 
+	// update only the chosen element in every
+	newBoard := oldBoard
+	for j := 0; j < len(newBoard); j++ {
+		newBoard[j] = choices[i]
+	}
+
+	printBoard(newBoard)
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
 	/*peppers := []pepper{
 		{Name: "Bell Pepper", HeatUnit: 0, Peppers: 0},
 		{Name: "Banana Pepper", HeatUnit: 100, Peppers: 1},
