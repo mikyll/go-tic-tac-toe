@@ -1,5 +1,8 @@
 # go-tic-tac-toe
-Simple Tic Tac Toe game with singleplayer vs AI, 2 players local mode and 2 players LAN mode, written in Go.
+Simple Tic Tac Toe CLI game, written in Go, with different playing modes:
+- singleplayer vs AI;
+- 2 players local;
+- 2 players LAN.
 
 ### Roadmap
 - [ ] main menu (singleplayer, multiplayer: local, LAN)
