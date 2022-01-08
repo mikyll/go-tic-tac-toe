@@ -8,43 +8,6 @@ import (
 	"golang.org/x/term"
 )
 
-// cazzo
-
-/*func main() {
-	prompt := promptui.Select{
-		Label: "Select Day",
-		Items: []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
-			"Saturday", "Sunday"},
-	}
-
-	_, result, err := prompt.Run()
-
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
-	}
-
-	fmt.Printf("You choose %q\n", result)
-
-	// Create a tic-tac-toe board.
-	board := [][]string{
-		[]string{"_", "_", "_"},
-		[]string{"_", "_", "_"},
-		[]string{"_", "_", "_"},
-	}
-
-	// The players take turns.
-	board[0][0] = "X"
-	board[2][2] = "O"
-	board[1][2] = "X"
-	board[1][0] = "O"
-	board[0][2] = "X"
-
-	for i := 0; i < len(board); i++ {
-		fmt.Printf("%s\n", strings.Join(board[i], " "))
-	}
-}*/
-
 type menu struct {
 	Entry string
 }
@@ -197,3 +160,38 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 
 		fmt.Printf("You choose number %d: %s\n", i+1, peppers[i].Name)*/
 }
+
+/*func main() {
+	prompt := promptui.Select{
+		Label: "Select Day",
+		Items: []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+			"Saturday", "Sunday"},
+	}
+
+	_, result, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return
+	}
+
+	fmt.Printf("You choose %q\n", result)
+
+	// Create a tic-tac-toe board.
+	board := [][]string{
+		[]string{"_", "_", "_"},
+		[]string{"_", "_", "_"},
+		[]string{"_", "_", "_"},
+	}
+
+	// The players take turns.
+	board[0][0] = "X"
+	board[2][2] = "O"
+	board[1][2] = "X"
+	board[1][0] = "O"
+	board[0][2] = "X"
+
+	for i := 0; i < len(board); i++ {
+		fmt.Printf("%s\n", strings.Join(board[i], " "))
+	}
+}*/
