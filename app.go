@@ -8,6 +8,8 @@ import (
 	"golang.org/x/term"
 )
 
+// cazzo
+
 /*func main() {
 	prompt := promptui.Select{
 		Label: "Select Day",
