@@ -117,8 +117,10 @@ func main() {
 		Active:   "\U000027A4  ({{ .X | cyan }}, {{ .Y | green }})",
 		Inactive: "  ({{ .X | cyan }}, {{ .Y | green }})",
 		Selected: "\U000027A4 ({{ .X | cyan }}, {{ .Y | green }})",
-		Details: fmt.Sprintf(`
+		Details: fmt.Sprintf(
+			`
 ----------- Game -----------
+
          {{"1   2   3" | cyan}}
       {{"1" | green}}    |   |   
         ---+---+---
@@ -126,6 +128,7 @@ func main() {
         ---+---+---
       {{"3" | green}}    |   |   
 
+----------------------------
 Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	}
 
