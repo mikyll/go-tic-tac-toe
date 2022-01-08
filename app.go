@@ -120,12 +120,14 @@ func main() {
 		Selected: "\U000027A4 ({{ `X: ` | cyan }}{{ .X | cyan }}, {{ `Y: ` | green }}{{ .Y | green }})",
 		Details: `
 ----------- Game -----------
- {{"X 1 2 3" | cyan}}
-{{"Y" | green}}\
-{{"1" | green}}
-{{"2" | green}}
-{{"3" | green}}
-Selected Move: {{ .Player }} in ({{ . }}`,
+   {{"1   2   3" | cyan}}
+{{"1" | green}}    |   |   
+  ---+---+---
+{{"2" | green}}  X |   |   
+  ---+---+---
+{{"3" | green}}    |   |   
+
+Selected Move: {{ .Player }} in ({{ .X | cyan }}, {{ .Y | green }})`,
 	}
 
 	gamePrompt := promptui.Select{
