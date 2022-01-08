@@ -48,8 +48,7 @@ type menu struct {
 }
 
 type board struct {
-	Player string
-	X, Y   int
+	X, Y int
 }
 
 type pepper struct {
@@ -102,32 +101,32 @@ func main() {
 	// game
 	player := "X"
 	board := []board{
-		{Player: player, X: 1, Y: 1},
-		{Player: player, X: 1, Y: 2},
-		{Player: player, X: 1, Y: 3},
-		{Player: player, X: 2, Y: 1},
-		{Player: player, X: 2, Y: 2},
-		{Player: player, X: 2, Y: 3},
-		{Player: player, X: 3, Y: 1},
-		{Player: player, X: 3, Y: 2},
-		{Player: player, X: 3, Y: 3},
+		{X: 1, Y: 1},
+		{X: 1, Y: 2},
+		{X: 1, Y: 3},
+		{X: 2, Y: 1},
+		{X: 2, Y: 2},
+		{X: 2, Y: 3},
+		{X: 3, Y: 1},
+		{X: 3, Y: 2},
+		{X: 3, Y: 3},
 	}
 
 	gameTemplate := &promptui.SelectTemplates{
-		Label:    "You play as {{ .Player | faint }}. Choose your next move:",
+		Label:    fmt.Sprintf("You play as %s. Choose your next move.", player),
 		Active:   "\U000027A4  ({{ .X | cyan }}, {{ .Y | green }})",
-		Inactive: "  ({{ `X: ` | cyan }}{{ .X | cyan }}, {{ `Y: ` | green }}{{ .Y | green }})",
-		Selected: "\U000027A4 ({{ `X: ` | cyan }}{{ .X | cyan }}, {{ `Y: ` | green }}{{ .Y | green }})",
-		Details: `
+		Inactive: "  ({{ .X | cyan }}, {{ .Y | green }})",
+		Selected: "\U000027A4 ({{ .X | cyan }}, {{ .Y | green }})",
+		Details: fmt.Sprintf(`
 ----------- Game -----------
-   {{"1   2   3" | cyan}}
-{{"1" | green}}    |   |   
-  ---+---+---
-{{"2" | green}}  X |   |   
-  ---+---+---
-{{"3" | green}}    |   |   
+         {{"1   2   3" | cyan}}
+      {{"1" | green}}    |   |   
+        ---+---+---
+      {{"2" | green}}  X |   |   
+        ---+---+---
+      {{"3" | green}}    |   |   
 
-Selected Move: {{ .Player }} in ({{ .X | cyan }}, {{ .Y | green }})`,
+Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	}
 
 	gamePrompt := promptui.Select{
