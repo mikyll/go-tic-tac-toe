@@ -114,19 +114,18 @@ func main() {
 	}
 
 	gameTemplate := &promptui.SelectTemplates{
-		Label:    "You play as X. Choose your next move",
-		Active:   "\U000027A4  (X:{{ .X | cyan }}, Y:{{ .Y | green }})",
-		Inactive: "  (X:{{ .X | cyan }}, Y:{{ .Y | green }})",
-		Selected: "\U000027A4 (X:{{ .X | cyan }}, Y:{{ .Y | green }})",
+		Label:    "You play as {{ .Player | faint }}. Choose your next move:",
+		Active:   "\U000027A4  ({{ .X | cyan }}, {{ .Y | green }})",
+		Inactive: "  ({{ `X: ` | cyan }}{{ .X | cyan }}, {{ `Y: ` | green }}{{ .Y | green }})",
+		Selected: "\U000027A4 ({{ `X: ` | cyan }}{{ .X | cyan }}, {{ `Y: ` | green }}{{ .Y | green }})",
 		Details: `
 ----------- Game -----------
-   1 2 3
-1 \U00002572
-2
-3
-{{ "Name:" | faint }}	{{ .Name }}
-{{ "Heat Unit:" | faint }}	{{ .HeatUnit }}
-{{ "Peppers:" | faint }}	{{ .Peppers }}`,
+ {{"X 1 2 3" | cyan}}
+{{"Y" | green}}\
+{{"1" | green}}
+{{"2" | green}}
+{{"3" | green}}
+Selected Move: {{ .Player }} in ({{ . }}`,
 	}
 
 	gamePrompt := promptui.Select{
