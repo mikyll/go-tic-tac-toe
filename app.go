@@ -9,6 +9,15 @@ import (
 	"golang.org/x/term"
 )
 
+type menu struct {
+	Entry string
+}
+
+type board struct {
+	X, Y                                                 int
+	X1Y1, X1Y2, X1Y3, X2Y1, X2Y2, X2Y3, X3Y1, X3Y2, X3Y3 string
+}
+
 type bellSkipper struct{}
 
 // Write implements an io.WriterCloser over os.Stderr, but it skips the terminal
@@ -26,16 +35,11 @@ func (bs *bellSkipper) Close() error {
 	return os.Stderr.Close()
 }
 
-func remove(slice []choices, i int) []choices {
+func remove(slice []board, i int) []board {
 	return append(slice[:i], slice[i+1:]...)
 }
 
-type choices struct {
-	X, Y                                                 int
-	X1Y1, X1Y2, X1Y3, X2Y1, X2Y2, X2Y3, X3Y1, X3Y2, X3Y3 string
-}
-
-func selectMove(oldBoard []choices, choices []choices, move int, player string) ([]choices, []choices) {
+func selectMove(oldBoard []board, choices []board, move int, player string) ([]board, []board) {
 	newBoard := oldBoard
 	newChoices := choices
 
@@ -105,14 +109,14 @@ func selectMove(oldBoard []choices, choices []choices, move int, player string) 
 	return newBoard, newChoices
 }
 
-func printBoard(board []choices) {
+func printBoard(b []board) {
 	fmt.Printf(`
  %s | %s | %s
 ---+---+---
  %s | %s | %s
 ---+---+---
  %s | %s | %s
- `, board[0].X1Y1, board[1].X1Y2, board[2].X1Y3, board[3].X2Y1, board[4].X2Y2, board[5].X2Y3, board[6].X3Y1, board[7].X3Y2, board[8].X3Y3)
+ `, b[0].X1Y1, b[1].X1Y2, b[2].X1Y3, b[3].X2Y1, b[4].X2Y2, b[5].X2Y3, b[6].X3Y1, b[7].X3Y2, b[8].X3Y3)
 }
 
 func main() {
@@ -121,19 +125,24 @@ func main() {
 		return
 	}
 
-	/*mainMenu := []menu{
+	var v int
+	var err error
+	//var gameEnd bool = false
+
+	// main menu
+	mainMenu := []menu{
 		{Entry: "Single Player"},
 		{Entry: "Multiplayer"},
 		{Entry: "About"},
 		{Entry: "Quit"},
 	}
 
-	singlePlayerMenu := []menu{
+	/*singlePlayerMenu := []menu{
 		{Entry: "Easy"},
 		{Entry: "Hard"},
 		{Entry: "About"},
 		{Entry: "Back"},
-	}
+	}*/
 
 	mainMenuTemplate := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
@@ -149,16 +158,21 @@ func main() {
 		Size:      4,
 	}
 
-	i, _, err := mainMenuPrompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+	for i := 0; ; i++ {
+		v, _, err = mainMenuPrompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
+		}
+		fmt.Printf("Chosen option %d\n", v)
+		if v == 0 {
+			break
+		}
 	}
-	fmt.Printf("Chosen option %d\n", i)*/
 
 	// game
 	player := " "
-	oldBoard := []choices{
+	oldBoard := []board{
 		{X: 1, Y: 1, X1Y1: player, X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
 		{X: 1, Y: 2, X1Y1: " ", X1Y2: player, X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
 		{X: 1, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: player, X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
@@ -170,7 +184,7 @@ func main() {
 		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: player},
 	}
 	player = "X"
-	choices := []choices{
+	playerChoices := []board{
 		{X: 1, Y: 1, X1Y1: player, X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
 		{X: 1, Y: 2, X1Y1: " ", X1Y2: player, X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
 		{X: 1, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: player, X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
@@ -182,13 +196,15 @@ func main() {
 		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: player},
 	}
 
+	for i := 0; i < 9; i++ {
+
+	}
 	gameTemplate := &promptui.SelectTemplates{
 		Label:    fmt.Sprintf("You play as %s. Choose your next move.", player),
 		Active:   "\U000027A4  ({{ .X | cyan }}, {{ .Y | green }})",
 		Inactive: "  ({{ .X | cyan }}, {{ .Y | green }})",
 		Selected: "\U000027A4 ({{ .X | cyan }}, {{ .Y | green }})",
-		Details: fmt.Sprintf(
-			`
+		Details: fmt.Sprintf(`
 ----------- Game -----------
 
          {{ .X1Y1 }} | {{ .X1Y2}} | {{ .X1Y3 }}  {{"1" | green}}
@@ -204,54 +220,34 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 
 	gamePrompt := promptui.Select{
 		Label:     "",
-		Items:     choices,
+		Items:     playerChoices,
 		Templates: gameTemplate,
 		Size:      4,
 		Stdout:    &bellSkipper{},
 	}
 
-	i, _, err := gamePrompt.Run()
+	v, _, err = gamePrompt.Run()
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
 		return
 	}
-	fmt.Printf("Chosen option %d\n", i)
+	fmt.Printf("Chosen option %d\n", v)
 
-	// update only the chosen element in every
-	/*newBoard := oldBoard
-	for j := 0; j < len(newBoard); j++ {
-		newBoard[j] = choices[i]
-		choices[j] = newBoard[j]
-		// need to add the X to the choices
-	}
-	// remove the choice at #i
-	choices = remove(choices, i)
-
-	for k := 0; k < len(choices); k++ {
-		fmt.Printf("(%s %s %s, %s %s %s, %s %s %s)\n", choices[k].X1Y1, choices[k].X1Y2, choices[k].X1Y3, choices[k].X2Y1, choices[k].X2Y2, choices[k].X2Y3, choices[k].X3Y1, choices[k].X3Y2, choices[k].X3Y3)
-	}
-	*/
-
-	oldBoard, choices = selectMove(oldBoard, choices, i, player)
-
-	/*fmt.Println("newBoard")
-	printBoard(oldBoard)
-	fmt.Println("choices")
-	printBoard(choices)*/
+	_, playerChoices = selectMove(oldBoard, playerChoices, v, player)
 
 	gamePrompt = promptui.Select{
 		Label:     "",
-		Items:     choices,
+		Items:     playerChoices,
 		Templates: gameTemplate,
 		Size:      4,
 		Stdout:    &bellSkipper{},
 	}
-	i, _, err = gamePrompt.Run()
+	v, _, err = gamePrompt.Run()
 	if err != nil {
 		fmt.Printf("Prompt failed %v\n", err)
 		return
 	}
-	fmt.Printf("Chosen option %d\n", i)
+	fmt.Printf("Chosen option %d\n", v)
 	//
 	//
 	//
