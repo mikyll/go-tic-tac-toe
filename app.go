@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"syscall"
 
 	"github.com/manifoldco/promptui"
@@ -26,6 +27,23 @@ type pepper struct {
 	HeatUnit int
 	Peppers  int
 }*/
+
+type bellSkipper struct{}
+
+// Write implements an io.WriterCloser over os.Stderr, but it skips the terminal
+// bell character.
+func (bs *bellSkipper) Write(b []byte) (int, error) {
+	const charBell = 7 // c.f. readline.CharBell
+	if len(b) == 1 && b[0] == charBell {
+		return 0, nil
+	}
+	return os.Stderr.Write(b)
+}
+
+// Close implements an io.WriterCloser over os.Stderr.
+func (bs *bellSkipper) Close() error {
+	return os.Stderr.Close()
+}
 
 type choices struct {
 	X, Y                                                 int
@@ -134,6 +152,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		Items:     choices,
 		Templates: gameTemplate,
 		Size:      4,
+		Stdout:    &bellSkipper{},
 	}
 
 	i, _, err := gamePrompt.Run()
