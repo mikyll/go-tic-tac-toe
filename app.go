@@ -9,25 +9,6 @@ import (
 	"golang.org/x/term"
 )
 
-/*type menu struct {
-	Entry string
-}
-
-type board struct {
-	X1Y1, X1Y2, X1Y3, X2Y1, X2Y2, X2Y3, X3Y1, X3Y2, X3Y3 string
-}
-
-type choices struct {
-	X, Y  int
-	Board board
-}
-
-type pepper struct {
-	Name     string
-	HeatUnit int
-	Peppers  int
-}*/
-
 type bellSkipper struct{}
 
 // Write implements an io.WriterCloser over os.Stderr, but it skips the terminal
@@ -45,9 +26,18 @@ func (bs *bellSkipper) Close() error {
 	return os.Stderr.Close()
 }
 
+func remove(slice []choices, i int) []choices {
+	return append(slice[:i], slice[i+1:]...)
+}
+
 type choices struct {
 	X, Y                                                 int
 	X1Y1, X1Y2, X1Y3, X2Y1, X2Y2, X2Y3, X3Y1, X3Y2, X3Y3 string
+}
+
+func selectMove(oldBoard []choices, i int, player string) ([]choices, []choices) {
+	newChoices := oldBoard
+	return oldBoard, newChoices
 }
 
 func printBoard(board []choices) {
@@ -166,9 +156,34 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	newBoard := oldBoard
 	for j := 0; j < len(newBoard); j++ {
 		newBoard[j] = choices[i]
+		choices[j] = newBoard[j]
+		// need to add the X to the choices
+	}
+	// remove the choice at #i
+	choices = remove(choices, i)
+
+	for k := 0; k < len(choices); k++ {
+		fmt.Printf("(%s %s %s, %s %s %s, %s %s %s)\n", choices[k].X1Y1, choices[k].X1Y2, choices[k].X1Y3, choices[k].X2Y1, choices[k].X2Y2, choices[k].X2Y3, choices[k].X3Y1, choices[k].X3Y2, choices[k].X3Y3)
 	}
 
+	fmt.Println("newBoard")
 	printBoard(newBoard)
+	/*fmt.Println("choices")
+	printBoard(choices)*/
+
+	gamePrompt = promptui.Select{
+		Label:     "",
+		Items:     choices,
+		Templates: gameTemplate,
+		Size:      4,
+		Stdout:    &bellSkipper{},
+	}
+	i, _, err = gamePrompt.Run()
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return
+	}
+	fmt.Printf("Chosen option %d\n", i)
 	//
 	//
 	//
@@ -238,6 +253,25 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 
 		fmt.Printf("You choose number %d: %s\n", i+1, peppers[i].Name)*/
 }
+
+/*type menu struct {
+	Entry string
+}
+
+type board struct {
+	X1Y1, X1Y2, X1Y3, X2Y1, X2Y2, X2Y3, X3Y1, X3Y2, X3Y3 string
+}
+
+type choices struct {
+	X, Y  int
+	Board board
+}
+
+type pepper struct {
+	Name     string
+	HeatUnit int
+	Peppers  int
+}*/
 
 /*func main() {
 	prompt := promptui.Select{
