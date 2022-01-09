@@ -146,27 +146,35 @@ func main() {
 
 	mainMenuTemplate := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
-		Active:   "\U000027A4  {{ .Entry | white }}",
+		Active:   "\U000027A4  {{ .Entry | cyan }}",
 		Inactive: "  {{ .Entry | white }} ",
-		Selected: "\U00002023 {{ .Entry | white }}",
+		Selected: "\U000027A4 {{ .Entry | white }}",
 	}
 
 	mainMenuPrompt := promptui.Select{
-		Label:     "--- Main Menu ---",
+		Label:     "-------- Main Menu ---------",
 		Items:     mainMenu,
 		Templates: mainMenuTemplate,
 		Size:      4,
 	}
 
-	for i := 0; ; i++ {
+	v = -1
+	for i := 0; v == -1; i++ {
 		v, _, err = mainMenuPrompt.Run()
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
 			return
 		}
 		fmt.Printf("Chosen option %d\n", v)
-		if v == 0 {
+		switch v {
+		case 0:
 			break
+		case 1:
+			v = -1
+		case 2:
+			v = -1
+		case 3:
+			return
 		}
 	}
 
@@ -196,9 +204,6 @@ func main() {
 		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: player},
 	}
 
-	for i := 0; i < 9; i++ {
-
-	}
 	gameTemplate := &promptui.SelectTemplates{
 		Label:    fmt.Sprintf("You play as %s. Choose your next move.", player),
 		Active:   "\U000027A4  ({{ .X | cyan }}, {{ .Y | green }})",
