@@ -35,9 +35,74 @@ type choices struct {
 	X1Y1, X1Y2, X1Y3, X2Y1, X2Y2, X2Y3, X3Y1, X3Y2, X3Y3 string
 }
 
-func selectMove(oldBoard []choices, i int, player string) ([]choices, []choices) {
-	newChoices := oldBoard
-	return oldBoard, newChoices
+func selectMove(oldBoard []choices, choices []choices, move int, player string) ([]choices, []choices) {
+	newBoard := oldBoard
+	newChoices := choices
+
+	// add player in choices
+	for i := 0; i < len(oldBoard); i++ {
+		newBoard[i] = choices[move]
+		newChoices[i] = choices[move]
+		switch i {
+		case 0:
+			if choices[0].X1Y1 == " " {
+				newChoices[0].X1Y1 = player
+				newChoices[0].X = 1
+				newChoices[0].Y = 1
+			}
+		case 1:
+			if choices[1].X1Y2 == " " {
+				newChoices[1].X1Y2 = player
+				newChoices[1].X = 1
+				newChoices[1].Y = 2
+			}
+		case 2:
+			if choices[2].X1Y3 == " " {
+				newChoices[2].X1Y3 = player
+				newChoices[2].X = 1
+				newChoices[2].Y = 3
+			}
+		case 3:
+			if choices[3].X2Y1 == " " {
+				newChoices[3].X2Y1 = player
+				newChoices[3].X = 2
+				newChoices[3].Y = 1
+			}
+		case 4:
+			if choices[4].X2Y2 == " " {
+				newChoices[4].X2Y2 = player
+				newChoices[4].X = 2
+				newChoices[4].Y = 2
+			}
+		case 5:
+			if choices[5].X2Y3 == " " {
+				newChoices[5].X2Y3 = player
+				newChoices[5].X = 2
+				newChoices[5].Y = 3
+			}
+		case 6:
+			if choices[6].X3Y1 == " " {
+				newChoices[6].X3Y1 = player
+				newChoices[6].X = 3
+				newChoices[6].Y = 1
+			}
+		case 7:
+			if choices[7].X3Y2 == " " {
+				newChoices[7].X3Y2 = player
+				newChoices[7].X = 3
+				newChoices[7].Y = 2
+			}
+		case 8:
+			if choices[8].X3Y3 == " " {
+				newChoices[8].X3Y3 = player
+				newChoices[8].X = 3
+				newChoices[8].Y = 3
+			}
+		}
+	}
+	newChoices = remove(newChoices, move)
+
+	return newBoard, newChoices
 }
 
 func printBoard(board []choices) {
@@ -153,7 +218,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	fmt.Printf("Chosen option %d\n", i)
 
 	// update only the chosen element in every
-	newBoard := oldBoard
+	/*newBoard := oldBoard
 	for j := 0; j < len(newBoard); j++ {
 		newBoard[j] = choices[i]
 		choices[j] = newBoard[j]
@@ -165,10 +230,13 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	for k := 0; k < len(choices); k++ {
 		fmt.Printf("(%s %s %s, %s %s %s, %s %s %s)\n", choices[k].X1Y1, choices[k].X1Y2, choices[k].X1Y3, choices[k].X2Y1, choices[k].X2Y2, choices[k].X2Y3, choices[k].X3Y1, choices[k].X3Y2, choices[k].X3Y3)
 	}
+	*/
 
-	fmt.Println("newBoard")
-	printBoard(newBoard)
-	/*fmt.Println("choices")
+	oldBoard, choices = selectMove(oldBoard, choices, i, player)
+
+	/*fmt.Println("newBoard")
+	printBoard(oldBoard)
+	fmt.Println("choices")
 	printBoard(choices)*/
 
 	gamePrompt = promptui.Select{
