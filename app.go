@@ -247,6 +247,10 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	// NB: fix the selectMove(): we cannot use the index in choices, since they're not anymore in range [0, 8] but less
 	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], &player, &turnCounter, v, choicesHistory)
 
+	// opponent random move
+	tmp = rand.Intn(len(playerChoices))
+	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[tmp], &player, &turnCounter, tmp, choicesHistory)
+
 	gamePrompt = promptui.Select{
 		Label:     "",
 		Items:     playerChoices,
