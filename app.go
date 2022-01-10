@@ -358,7 +358,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	fmt.Printf("Chosen option %d\n", v)
 
 	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, turnCounter, v, choicesHistory)
-	//_, playerChoices = selectMove(oldBoard, playerChoices, v, player)
+	turnCounter++
 
 	gamePrompt = promptui.Select{
 		Label:     "",
@@ -375,7 +375,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	fmt.Printf("Chosen option %d\n", v)
 
 	// NB: fix the selectMove(): we cannot use the index in choices, since they're not anymore in range [0, 8] but less
-	/*_, playerChoices = selectMove(oldBoard, playerChoices, v, player)
+	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, turnCounter, v, choicesHistory)
 
 	gamePrompt = promptui.Select{
 		Label:     "",
@@ -389,7 +389,11 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		fmt.Printf("Prompt failed %v\n", err)
 		return
 	}
-	fmt.Printf("Chosen option %d\n", v)*/
+	fmt.Printf("Chosen option %d\n", v)
+
+	fmt.Println(gameBoard)
+	fmt.Println(playerChoices)
+	fmt.Println(choicesHistory)
 	//
 	//
 	//
