@@ -95,14 +95,45 @@ func selectMove(gameBoard []board, updatedBoard board, player *string, playerTur
 	return newBoard, choices, moveHistory
 }
 
-func printBoard(b []board) {
+func checkWin(gameBoard board) string {
+	// rows
+	if gameBoard.X1Y1 == gameBoard.X1Y2 && gameBoard.X1Y1 == gameBoard.X1Y3 {
+		return gameBoard.X1Y1
+	}
+	if gameBoard.X2Y1 == gameBoard.X2Y2 && gameBoard.X2Y1 == gameBoard.X2Y3 {
+		return gameBoard.X2Y1
+	}
+	if gameBoard.X3Y1 == gameBoard.X3Y2 && gameBoard.X3Y1 == gameBoard.X3Y3 {
+		return gameBoard.X3Y1
+	}
+	// columns
+	if gameBoard.X1Y1 == gameBoard.X2Y1 && gameBoard.X1Y1 == gameBoard.X3Y1 {
+		return gameBoard.X1Y1
+	}
+	if gameBoard.X1Y2 == gameBoard.X2Y2 && gameBoard.X1Y2 == gameBoard.X3Y2 {
+		return gameBoard.X1Y2
+	}
+	if gameBoard.X1Y3 == gameBoard.X2Y3 && gameBoard.X1Y3 == gameBoard.X3Y3 {
+		return gameBoard.X1Y3
+	}
+	// others
+	if gameBoard.X1Y1 == gameBoard.X2Y2 && gameBoard.X1Y1 == gameBoard.X3Y3 {
+		return gameBoard.X1Y1
+	}
+	if gameBoard.X3Y1 == gameBoard.X2Y2 && gameBoard.X3Y1 == gameBoard.X1Y3 {
+		return gameBoard.X3Y1
+	}
+	return ""
+}
+
+func printBoard(b board) {
 	fmt.Printf(`
  %s | %s | %s
 ---+---+---
  %s | %s | %s
 ---+---+---
  %s | %s | %s
- `, b[0].X1Y1, b[1].X1Y2, b[2].X1Y3, b[3].X2Y1, b[4].X2Y2, b[5].X2Y3, b[6].X3Y1, b[7].X3Y2, b[8].X3Y3)
+ `, b.X1Y1, b.X1Y2, b.X1Y3, b.X2Y1, b.X2Y2, b.X2Y3, b.X3Y1, b.X3Y2, b.X3Y3)
 }
 
 func main() {
@@ -209,6 +240,46 @@ func main() {
 Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	}
 
+	opponentChoice := -1
+	// roll for who begins
+	for {
+		gamePrompt := promptui.Select{
+			Label:     "",
+			Items:     playerChoices,
+			Templates: gameTemplate,
+			Size:      4,
+			Stdout:    &bellSkipper{},
+		}
+
+		v, _, err = gamePrompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
+		}
+		fmt.Printf("Chosen option %d\n", v)
+
+		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], &player, &turnCounter, v, choicesHistory)
+
+		if turnCounter > 3 {
+			win := checkWin(gameBoard[0])
+			if win != "" {
+				printBoard(gameBoard[0])
+				fmt.Printf("Player %s won.\n\n", win)
+				return
+			}
+		}
+		// opponent random move
+		opponentChoice = rand.Intn(len(playerChoices))
+		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], &player, &turnCounter, opponentChoice, choicesHistory)
+		if turnCounter > 3 {
+			win := checkWin(gameBoard[0])
+			if win != "" {
+				printBoard(gameBoard[0])
+				fmt.Printf("Player %s won.\n\n", win)
+				return
+			}
+		}
+	}
 	gamePrompt := promptui.Select{
 		Label:     "",
 		Items:     playerChoices,
