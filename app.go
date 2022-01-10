@@ -40,8 +40,8 @@ func remove(slice []board, i int) []board {
 }
 
 func selectMove(gameBoard []board, updatedBoard board, player string, playerTurn int, playerMove int, moveHistory []int) ([]board, []board, []int) {
-	var newBoard []board
-	var choices []board
+	newBoard := gameBoard
+	choices := gameBoard
 	var nextPlayer string
 
 	moveHistory[playerTurn] = playerMove
@@ -87,7 +87,7 @@ func selectMove(gameBoard []board, updatedBoard board, player string, playerTurn
 
 	// remove choices already picked
 	for i := 0; moveHistory[i] != -1; i++ {
-		choices = remove(choices, i)
+		choices = remove(choices, moveHistory[i])
 	}
 
 	return newBoard, choices, moveHistory
@@ -357,7 +357,8 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	}
 	fmt.Printf("Chosen option %d\n", v)
 
-	_, playerChoices = selectMove(oldBoard, playerChoices, v, player)
+	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, turnCounter, v, choicesHistory)
+	//_, playerChoices = selectMove(oldBoard, playerChoices, v, player)
 
 	gamePrompt = promptui.Select{
 		Label:     "",
@@ -374,7 +375,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	fmt.Printf("Chosen option %d\n", v)
 
 	// NB: fix the selectMove(): we cannot use the index in choices, since they're not anymore in range [0, 8] but less
-	_, playerChoices = selectMove(oldBoard, playerChoices, v, player)
+	/*_, playerChoices = selectMove(oldBoard, playerChoices, v, player)
 
 	gamePrompt = promptui.Select{
 		Label:     "",
@@ -388,7 +389,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		fmt.Printf("Prompt failed %v\n", err)
 		return
 	}
-	fmt.Printf("Chosen option %d\n", v)
+	fmt.Printf("Chosen option %d\n", v)*/
 	//
 	//
 	//
