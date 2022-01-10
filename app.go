@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"syscall"
+	"time"
 
 	"github.com/manifoldco/promptui"
 	"golang.org/x/term"
@@ -39,17 +41,17 @@ func remove(slice []board, i int) []board {
 	return append(slice[:i], slice[i+1:]...)
 }
 
-func selectMove(gameBoard []board, updatedBoard board, player string, playerTurn int, playerMove int, moveHistory []int) ([]board, []board, []int) {
+func selectMove(gameBoard []board, updatedBoard board, player *string, playerTurn *int, playerMove int, moveHistory []int) ([]board, []board, []int) {
 	newBoard := gameBoard
 	choices := gameBoard
-	var nextPlayer string
 
-	moveHistory[playerTurn] = playerMove
+	moveHistory[*playerTurn] = playerMove
+	*playerTurn++
 
-	if player == "X" {
-		nextPlayer = "O"
-	} else if player == "O" {
-		nextPlayer = "X"
+	if *player == "X" {
+		*player = "O"
+	} else if *player == "O" {
+		*player = "X"
 	}
 
 	for i := 0; i < len(gameBoard); i++ {
@@ -57,31 +59,31 @@ func selectMove(gameBoard []board, updatedBoard board, player string, playerTurn
 		choices[i] = updatedBoard
 	}
 
-	choices[0].X1Y1 = nextPlayer
+	choices[0].X1Y1 = *player
 	choices[0].X = 1
 	choices[0].Y = 1
-	choices[1].X1Y2 = nextPlayer
+	choices[1].X1Y2 = *player
 	choices[1].X = 1
 	choices[1].Y = 2
-	choices[2].X1Y3 = nextPlayer
+	choices[2].X1Y3 = *player
 	choices[2].X = 1
 	choices[2].Y = 3
-	choices[3].X2Y1 = nextPlayer
+	choices[3].X2Y1 = *player
 	choices[3].X = 2
 	choices[3].Y = 1
-	choices[4].X2Y2 = nextPlayer
+	choices[4].X2Y2 = *player
 	choices[4].X = 2
 	choices[4].Y = 2
-	choices[5].X2Y3 = nextPlayer
+	choices[5].X2Y3 = *player
 	choices[5].X = 2
 	choices[5].Y = 3
-	choices[6].X3Y1 = nextPlayer
+	choices[6].X3Y1 = *player
 	choices[6].X = 3
 	choices[6].Y = 1
-	choices[7].X3Y2 = nextPlayer
+	choices[7].X3Y2 = *player
 	choices[7].X = 3
 	choices[7].Y = 2
-	choices[8].X3Y3 = nextPlayer
+	choices[8].X3Y3 = *player
 	choices[8].X = 3
 	choices[8].Y = 3
 
@@ -92,143 +94,6 @@ func selectMove(gameBoard []board, updatedBoard board, player string, playerTurn
 
 	return newBoard, choices, moveHistory
 }
-
-/*func doOpponent(oldBoard []board, choices []board, move int, player string) ([]board, []board) {
-	newBoard := oldBoard
-	newChoices := choices
-}*/
-
-/*func selectMove(oldBoard []board, move int, player string) ([]board, []board) {
-	newBoard := oldBoard
-	// creo un nuovo array per le scelte, che corrisponde alla
-	// newChoices := newBoard
-
-	//playerChoice := string(choices[move].X + choices[move].Y)
-	// add player in choices
-	for i := 0; i < len(oldBoard); i++ {
-		newBoard[i] = choices[move]
-		newChoices[i] = choices[move]
-		switch i {
-		case 0:
-			if choices[0].X1Y1 == " " {
-				newChoices[0].X1Y1 = player
-				newChoices[0].X = 1
-				newChoices[0].Y = 1
-			}
-		case 1:
-			if choices[1].X1Y2 == " " {
-				newChoices[1].X1Y2 = player
-				newChoices[1].X = 1
-				newChoices[1].Y = 2
-			}
-		case 2:
-			if choices[2].X1Y3 == " " {
-				newChoices[2].X1Y3 = player
-				newChoices[2].X = 1
-				newChoices[2].Y = 3
-			}
-		case 3:
-			if choices[3].X2Y1 == " " {
-				newChoices[3].X2Y1 = player
-				newChoices[3].X = 2
-				newChoices[3].Y = 1
-			}
-		case 4:
-			if choices[4].X2Y2 == " " {
-				newChoices[4].X2Y2 = player
-				newChoices[4].X = 2
-				newChoices[4].Y = 2
-			}
-		case 5:
-			if choices[5].X2Y3 == " " {
-				newChoices[5].X2Y3 = player
-				newChoices[5].X = 2
-				newChoices[5].Y = 3
-			}
-		case 6:
-			if choices[6].X3Y1 == " " {
-				newChoices[6].X3Y1 = player
-				newChoices[6].X = 3
-				newChoices[6].Y = 1
-			}
-		case 7:
-			if choices[7].X3Y2 == " " {
-				newChoices[7].X3Y2 = player
-				newChoices[7].X = 3
-				newChoices[7].Y = 2
-			}
-		case 8:
-			if choices[8].X3Y3 == " " {
-				newChoices[8].X3Y3 = player
-				newChoices[8].X = 3
-				newChoices[8].Y = 3
-			}
-		}
-	}
-
-	for i := 0; i < len(newChoices); i++ {
-		currChoice := strconv.Itoa(newChoices[i].X) + strconv.Itoa(newChoices[i].Y)
-		switch currChoice {
-		case "11":
-			newChoices[i].X = 1
-			newChoices[i].Y = 1
-			if newChoices[i].X1Y1 == " " {
-				newChoices[i].X1Y1 = player
-			}
-		case "12":
-			newChoices[i].X = 1
-			newChoices[i].Y = 2
-			if newChoices[i].X1Y2 == " " {
-				newChoices[i].X1Y2 = player
-			}
-		case "13":
-			newChoices[i].X = 1
-			newChoices[i].Y = 3
-			if newChoices[i].X1Y3 == " " {
-				newChoices[i].X1Y3 = player
-			}
-		case "21":
-			newChoices[i].X = 2
-			newChoices[i].Y = 1
-			if newChoices[i].X2Y1 == " " {
-				newChoices[i].X2Y1 = player
-			}
-		case "22":
-			newChoices[i].X = 2
-			newChoices[i].Y = 2
-			if newChoices[i].X2Y2 == " " {
-				newChoices[i].X2Y2 = player
-			}
-		case "23":
-			newChoices[i].X = 2
-			newChoices[i].Y = 3
-			if newChoices[i].X2Y3 == " " {
-				newChoices[i].X2Y3 = player
-			}
-		case "31":
-			newChoices[i].X = 3
-			newChoices[i].Y = 1
-			if newChoices[i].X3Y1 == " " {
-				newChoices[i].X3Y1 = player
-			}
-		case "32":
-			newChoices[i].X = 3
-			newChoices[i].Y = 2
-			if newChoices[i].X3Y2 == " " {
-				newChoices[i].X3Y2 = player
-			}
-		case "33":
-			newChoices[i].X = 3
-			newChoices[i].Y = 3
-			if newChoices[i].X3Y3 == " " {
-				newChoices[i].X3Y3 = player
-			}
-		}
-	}
-	newChoices = remove(newChoices, move)
-
-	return newBoard, newChoices
-}*/
 
 func printBoard(b []board) {
 	fmt.Printf(`
@@ -245,6 +110,8 @@ func main() {
 		fmt.Println("Terminal is not interactive! Consider using flags or environment variables!")
 		return
 	}
+
+	rand.Seed(time.Now().UnixMilli())
 
 	var v int
 	var err error
@@ -357,8 +224,11 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	}
 	fmt.Printf("Chosen option %d\n", v)
 
-	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, turnCounter, v, choicesHistory)
-	turnCounter++
+	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], &player, &turnCounter, v, choicesHistory)
+
+	// opponent random move
+	tmp := rand.Intn(len(playerChoices))
+	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[tmp], &player, &turnCounter, tmp, choicesHistory)
 
 	gamePrompt = promptui.Select{
 		Label:     "",
@@ -375,7 +245,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	fmt.Printf("Chosen option %d\n", v)
 
 	// NB: fix the selectMove(): we cannot use the index in choices, since they're not anymore in range [0, 8] but less
-	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, turnCounter, v, choicesHistory)
+	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], &player, &turnCounter, v, choicesHistory)
 
 	gamePrompt = promptui.Select{
 		Label:     "",
