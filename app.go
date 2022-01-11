@@ -266,6 +266,9 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 				printBoard(gameBoard[0])
 				fmt.Printf("Player %s won.\n\n", win)
 				return
+			} else if turnCounter == 8 {
+				fmt.Printf("Draw.\n\n")
+				return
 			}
 		}
 		// opponent random move
@@ -276,6 +279,9 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 			if win != "" {
 				printBoard(gameBoard[0])
 				fmt.Printf("Player %s won.\n\n", win)
+				return
+			} else if turnCounter == 8 {
+				fmt.Printf("Draw.\n\n")
 				return
 			}
 		}
