@@ -175,6 +175,7 @@ func main() {
 		Items:     mainMenu,
 		Templates: mainMenuTemplate,
 		Size:      4,
+		Stdout:    &bellSkipper{},
 	}
 
 	v = -1
@@ -258,8 +259,12 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		}
 		fmt.Printf("Chosen option %d\n", v)
 
+		printBoard(playerChoices[0])
 		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], &player, &turnCounter, v, choicesHistory)
-
+		printBoard(gameBoard[0])
+		printBoard(gameBoard[1])
+		printBoard(gameBoard[2])
+		printBoard(playerChoices[0])
 		if turnCounter > 3 {
 			win := checkWin(gameBoard[0])
 			if win != "" {
@@ -271,6 +276,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 				return
 			}
 		}
+
 		// opponent random move
 		opponentChoice = rand.Intn(len(playerChoices))
 		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], &player, &turnCounter, opponentChoice, choicesHistory)
