@@ -15,6 +15,10 @@ type menu struct {
 	Entry string
 }
 
+type playerSymbols struct {
+	P1, P2 string
+}
+
 type board struct {
 	X, Y                                                 int
 	X1Y1, X1Y2, X1Y3, X2Y1, X2Y2, X2Y3, X3Y1, X3Y2, X3Y3 string
@@ -37,56 +41,66 @@ func (bs *bellSkipper) Close() error {
 	return os.Stderr.Close()
 }
 
+var ps = playerSymbols{P1: "X", P2: "O"}
+
 func remove(slice []board, i int) []board {
 	return append(slice[:i], slice[i+1:]...)
 }
 
-func selectMove(gameBoard []board, updatedBoard board, player *string, playerTurn *int, playerMove int, moveHistory []int) ([]board, []board, []int) {
+func swapPlayer(player string, ps playerSymbols) string {
+	if player == ps.P1 {
+		return ps.P2
+	} else if player == ps.P2 {
+		return ps.P1
+	}
+	return ""
+}
+
+func selectMove(gameBoard []board, updatedBoard board, player string, playerTurn *int, playerMove int, moveHistory []int) ([]board, []board, []int) {
 	newBoard := gameBoard
+	printWholeBoard(newBoard) // test
 	choices := gameBoard
 
 	moveHistory[*playerTurn] = playerMove
 	*playerTurn++
 
-	if *player == "X" {
-		*player = "O"
-	} else if *player == "O" {
-		*player = "X"
-	}
+	player = swapPlayer(player, ps)
 
 	for i := 0; i < len(gameBoard); i++ {
 		newBoard[i] = updatedBoard
 		choices[i] = updatedBoard
 	}
-
-	choices[0].X1Y1 = *player
+	// test: qui la board non ha ancora la nuova scelta
+	printWholeBoard(newBoard) // test
+	choices[0].X1Y1 = player
 	choices[0].X = 1
 	choices[0].Y = 1
-	choices[1].X1Y2 = *player
+	choices[1].X1Y2 = player
 	choices[1].X = 1
 	choices[1].Y = 2
-	choices[2].X1Y3 = *player
+	choices[2].X1Y3 = player
 	choices[2].X = 1
 	choices[2].Y = 3
-	choices[3].X2Y1 = *player
+	choices[3].X2Y1 = player
 	choices[3].X = 2
 	choices[3].Y = 1
-	choices[4].X2Y2 = *player
+	choices[4].X2Y2 = player
 	choices[4].X = 2
 	choices[4].Y = 2
-	choices[5].X2Y3 = *player
+	choices[5].X2Y3 = player
 	choices[5].X = 2
 	choices[5].Y = 3
-	choices[6].X3Y1 = *player
+	choices[6].X3Y1 = player
 	choices[6].X = 3
 	choices[6].Y = 1
-	choices[7].X3Y2 = *player
+	choices[7].X3Y2 = player
 	choices[7].X = 3
 	choices[7].Y = 2
-	choices[8].X3Y3 = *player
+	choices[8].X3Y3 = player
 	choices[8].X = 3
 	choices[8].Y = 3
-
+	printWholeBoard(newBoard) // test
+	fmt.Println("=====================================")
 	// remove choices already picked
 	for i := 0; moveHistory[i] != -1; i++ {
 		choices = remove(choices, moveHistory[i])
@@ -126,6 +140,53 @@ func checkWin(gameBoard board) string {
 	return ""
 }
 
+func checkWinPrint(gameBoard board) string {
+	// rows
+	if gameBoard.X1Y1 == gameBoard.X1Y2 && gameBoard.X1Y1 == gameBoard.X1Y3 {
+		p := gameBoard.X1Y1
+		fmt.Printf("\n\n %v | %v | %v \n---+---+---\n   |   |   \n---+---+---\n   |   |   ", p, p, p)
+		return gameBoard.X1Y1
+	}
+	if gameBoard.X2Y1 == gameBoard.X2Y2 && gameBoard.X2Y1 == gameBoard.X2Y3 {
+		p := gameBoard.X2Y1
+		fmt.Printf("\n\n   |   |   \n---+---+---\n %v | %v | %v \n---+---+---\n   |   |   ", p, p, p)
+		return gameBoard.X2Y1
+	}
+	if gameBoard.X3Y1 == gameBoard.X3Y2 && gameBoard.X3Y1 == gameBoard.X3Y3 {
+		p := gameBoard.X3Y1
+		fmt.Printf("\n\n   |   |   \n---+---+---\n   |   |   \n---+---+---\n %v | %v | %v ", p, p, p)
+		return gameBoard.X3Y1
+	}
+	// columns
+	if gameBoard.X1Y1 == gameBoard.X2Y1 && gameBoard.X1Y1 == gameBoard.X3Y1 {
+		p := gameBoard.X1Y1
+		fmt.Printf("\n\n %v |   |   \n---+---+---\n %v |   |   \n---+---+---\n %v |   |   ", p, p, p)
+		return gameBoard.X1Y1
+	}
+	if gameBoard.X1Y2 == gameBoard.X2Y2 && gameBoard.X1Y2 == gameBoard.X3Y2 {
+		p := gameBoard.X1Y2
+		fmt.Printf("\n\n   | %v |   \n---+---+---\n   | %v |   \n---+---+---\n   | %v |   ", p, p, p)
+		return gameBoard.X1Y2
+	}
+	if gameBoard.X1Y3 == gameBoard.X2Y3 && gameBoard.X1Y3 == gameBoard.X3Y3 {
+		p := gameBoard.X1Y3
+		fmt.Printf("\n\n   |   | %v \n---+---+---\n   |   | %v \n---+---+---\n   |   | %v ", p, p, p)
+		return gameBoard.X1Y3
+	}
+	// others
+	if gameBoard.X1Y1 == gameBoard.X2Y2 && gameBoard.X1Y1 == gameBoard.X3Y3 {
+		p := gameBoard.X1Y1
+		fmt.Printf("\n\n %v |   |   \n---+---+---\n   | %v |   \n---+---+---\n   |   | %v ", p, p, p)
+		return gameBoard.X1Y1
+	}
+	if gameBoard.X3Y1 == gameBoard.X2Y2 && gameBoard.X3Y1 == gameBoard.X1Y3 {
+		p := gameBoard.X3Y1
+		fmt.Printf("\n\n   |   | %v \n---+---+---\n   | %v |   \n---+---+---\n %v |   |   ", p, p, p)
+		return gameBoard.X3Y1
+	}
+	return ""
+}
+
 func printBoard(b board) {
 	fmt.Printf(`
  %s | %s | %s
@@ -135,8 +196,33 @@ func printBoard(b board) {
  %s | %s | %s
  `, b.X1Y1, b.X1Y2, b.X1Y3, b.X2Y1, b.X2Y2, b.X2Y3, b.X3Y1, b.X3Y2, b.X3Y3)
 }
+func printWholeBoard(b []board) {
+	fmt.Printf(`
+[0]           [1]           [2]           [3]
+ %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s
+---+---+--- # ---+---+--- # ---+---+--- # ---+---+--- # 
+ %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s
+---+---+--- # ---+---+--- # ---+---+--- # ---+---+--- # 
+ %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s
+ `, b[0].X1Y1, b[0].X1Y2, b[0].X1Y3, b[1].X1Y1, b[1].X1Y2, b[1].X1Y3, b[2].X1Y1, b[2].X1Y2, b[2].X1Y3, b[3].X1Y1, b[3].X1Y2, b[3].X1Y3,
+		b[0].X2Y1, b[0].X2Y2, b[0].X2Y3, b[1].X2Y1, b[1].X2Y2, b[1].X2Y3, b[2].X2Y1, b[2].X2Y2, b[2].X2Y3, b[3].X2Y1, b[3].X2Y2, b[3].X2Y3,
+		b[0].X3Y1, b[0].X3Y2, b[0].X3Y3, b[1].X3Y1, b[1].X3Y2, b[1].X3Y3, b[2].X3Y1, b[2].X3Y2, b[2].X3Y3, b[3].X3Y1, b[3].X3Y2, b[3].X3Y3)
+}
 
 func main() {
+	/*// pointer test
+	var pointer *int
+	var pointed int
+
+	pointer = &pointed
+	fmt.Println("pointer: ", pointer)
+	fmt.Println("*pointer:", *pointer)
+	fmt.Println("&pointer:", &pointer)
+	fmt.Println("pointed: ", pointed)
+	fmt.Println("&pointed:", &pointed)
+
+	return*/
+
 	if !term.IsTerminal(int(syscall.Stdin)) {
 		fmt.Println("Terminal is not interactive! Consider using flags or environment variables!")
 		return
@@ -159,7 +245,6 @@ func main() {
 	/*singlePlayerMenu := []menu{
 		{Entry: "Easy"},
 		{Entry: "Hard"},
-		{Entry: "About"},
 		{Entry: "Back"},
 	}*/
 
@@ -198,7 +283,8 @@ func main() {
 	// game
 	turnCounter := 0
 	choicesHistory := []int{-1, -1, -1, -1, -1, -1, -1, -1, -1}
-	player := "X"
+	player := ps.P1
+	opponent := ps.P2
 	gameBoard := []board{
 		{X: 1, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
 		{X: 1, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
@@ -208,7 +294,7 @@ func main() {
 		{X: 2, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
 		{X: 3, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
 		{X: 3, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: player},
+		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
 	}
 	playerChoices := []board{
 		{X: 1, Y: 1, X1Y1: player, X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
@@ -259,14 +345,9 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		}
 		fmt.Printf("Chosen option %d\n", v)
 
-		printBoard(playerChoices[0])
-		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], &player, &turnCounter, v, choicesHistory)
-		printBoard(gameBoard[0])
-		printBoard(gameBoard[1])
-		printBoard(gameBoard[2])
-		printBoard(playerChoices[0])
+		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, &turnCounter, v, choicesHistory)
 		if turnCounter > 3 {
-			win := checkWin(gameBoard[0])
+			win := checkWinPrint(gameBoard[0])
 			if win != "" {
 				printBoard(gameBoard[0])
 				fmt.Printf("Player %s won.\n\n", win)
@@ -279,9 +360,9 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 
 		// opponent random move
 		opponentChoice = rand.Intn(len(playerChoices))
-		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], &player, &turnCounter, opponentChoice, choicesHistory)
+		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], opponent, &turnCounter, opponentChoice, choicesHistory)
 		if turnCounter > 3 {
-			win := checkWin(gameBoard[0])
+			win := checkWinPrint(gameBoard[0])
 			if win != "" {
 				printBoard(gameBoard[0])
 				fmt.Printf("Player %s won.\n\n", win)
@@ -292,7 +373,11 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 			}
 		}
 	}
-	gamePrompt := promptui.Select{
+	//
+	//
+	//
+	//
+	/*gamePrompt := promptui.Select{
 		Label:     "",
 		Items:     playerChoices,
 		Templates: gameTemplate,
@@ -346,5 +431,5 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		fmt.Printf("Prompt failed %v\n", err)
 		return
 	}
-	fmt.Printf("Chosen option %d\n", v)
+	fmt.Printf("Chosen option %d\n", v)*/
 }
