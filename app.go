@@ -14,8 +14,7 @@ import (
 // Utility to skip the terminal bell sound, when selecting prompt options
 type bellSkipper struct{}
 
-// Write implements an io.WriterCloser over os.Stderr, but it skips the terminal
-// bell character.
+// Write implements an io.WriterCloser over os.Stderr, but it skips the terminal bell character.
 func (bs *bellSkipper) Write(b []byte) (int, error) {
 	const charBell = 7 // c.f. readline.CharBell
 	if len(b) == 1 && b[0] == charBell {
