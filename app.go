@@ -394,7 +394,7 @@ func main() {
 		state, _, err = mainMenuPrompt.Run()
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
-			return
+			os.Exit(1)
 		}
 		switch state {
 		case SINGLEPLAYER:
@@ -403,7 +403,7 @@ func main() {
 				state, _, err = singlePlayerPrompt.Run()
 				if err != nil {
 					fmt.Printf("Prompt failed %v\n", err)
-					return
+					os.Exit(1)
 				}
 				switch state {
 				case EASY:
