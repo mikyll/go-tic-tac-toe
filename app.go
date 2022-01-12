@@ -61,12 +61,11 @@ func swapPlayer(player string, ps playerSymbols) string {
 	return ""
 }
 
-func selectMove(gameBoard [9]board, updatedBoard board, player string, playerTurn *int, playerMove int, moveHistory []int) ([9]board, []board, []int) {
+func selectMove(gameBoard [9]board, updatedBoard board, player string, playerTurn int, playerMove int, moveHistory []int) ([9]board, []board, []int) {
 	newBoard := gameBoard
 	choices := gameBoard[:]
 
-	moveHistory[*playerTurn] = playerMove
-	*playerTurn++
+	moveHistory[playerTurn] = playerMove
 
 	player = swapPlayer(player, ps)
 
@@ -144,44 +143,44 @@ func checkWin(gameBoard board) string {
 
 func checkWinPrint(gameBoard board) string {
 	// rows
-	if gameBoard.X1Y1 != "" && gameBoard.X1Y1 == gameBoard.X1Y2 && gameBoard.X1Y1 == gameBoard.X1Y3 {
+	if gameBoard.X1Y1 != "" && gameBoard.X1Y1 != " " && gameBoard.X1Y1 == gameBoard.X1Y2 && gameBoard.X1Y1 == gameBoard.X1Y3 {
 		p := gameBoard.X1Y1
 		fmt.Printf("\n\n %v | %v | %v \n---+---+---\n   |   |   \n---+---+---\n   |   |   ", p, p, p)
 		return gameBoard.X1Y1
 	}
-	if gameBoard.X2Y1 != "" && gameBoard.X2Y1 == gameBoard.X2Y2 && gameBoard.X2Y1 == gameBoard.X2Y3 {
+	if gameBoard.X2Y1 != "" && gameBoard.X2Y1 != " " && gameBoard.X2Y1 == gameBoard.X2Y2 && gameBoard.X2Y1 == gameBoard.X2Y3 {
 		p := gameBoard.X2Y1
 		fmt.Printf("\n\n   |   |   \n---+---+---\n %v | %v | %v \n---+---+---\n   |   |   ", p, p, p)
 		return gameBoard.X2Y1
 	}
-	if gameBoard.X3Y1 != "" && gameBoard.X3Y1 == gameBoard.X3Y2 && gameBoard.X3Y1 == gameBoard.X3Y3 {
+	if gameBoard.X3Y1 != "" && gameBoard.X3Y1 != " " && gameBoard.X3Y1 == gameBoard.X3Y2 && gameBoard.X3Y1 == gameBoard.X3Y3 {
 		p := gameBoard.X3Y1
 		fmt.Printf("\n\n   |   |   \n---+---+---\n   |   |   \n---+---+---\n %v | %v | %v ", p, p, p)
 		return gameBoard.X3Y1
 	}
 	// columns
-	if gameBoard.X1Y1 != "" && gameBoard.X1Y1 == gameBoard.X2Y1 && gameBoard.X1Y1 == gameBoard.X3Y1 {
+	if gameBoard.X1Y1 != "" && gameBoard.X1Y1 != " " && gameBoard.X1Y1 == gameBoard.X2Y1 && gameBoard.X1Y1 == gameBoard.X3Y1 {
 		p := gameBoard.X1Y1
 		fmt.Printf("\n\n %v |   |   \n---+---+---\n %v |   |   \n---+---+---\n %v |   |   ", p, p, p)
 		return gameBoard.X1Y1
 	}
-	if gameBoard.X1Y2 != "" && gameBoard.X1Y2 == gameBoard.X2Y2 && gameBoard.X1Y2 == gameBoard.X3Y2 {
+	if gameBoard.X1Y2 != "" && gameBoard.X1Y2 != " " && gameBoard.X1Y2 == gameBoard.X2Y2 && gameBoard.X1Y2 == gameBoard.X3Y2 {
 		p := gameBoard.X1Y2
 		fmt.Printf("\n\n   | %v |   \n---+---+---\n   | %v |   \n---+---+---\n   | %v |   ", p, p, p)
 		return gameBoard.X1Y2
 	}
-	if gameBoard.X1Y3 != "" && gameBoard.X1Y3 == gameBoard.X2Y3 && gameBoard.X1Y3 == gameBoard.X3Y3 {
+	if gameBoard.X1Y3 != "" && gameBoard.X1Y3 != " " && gameBoard.X1Y3 == gameBoard.X2Y3 && gameBoard.X1Y3 == gameBoard.X3Y3 {
 		p := gameBoard.X1Y3
 		fmt.Printf("\n\n   |   | %v \n---+---+---\n   |   | %v \n---+---+---\n   |   | %v ", p, p, p)
 		return gameBoard.X1Y3
 	}
 	// others
-	if gameBoard.X1Y1 != "" && gameBoard.X1Y1 == gameBoard.X2Y2 && gameBoard.X1Y1 == gameBoard.X3Y3 {
+	if gameBoard.X1Y1 != "" && gameBoard.X1Y1 != " " && gameBoard.X1Y1 == gameBoard.X2Y2 && gameBoard.X1Y1 == gameBoard.X3Y3 {
 		p := gameBoard.X1Y1
 		fmt.Printf("\n\n %v |   |   \n---+---+---\n   | %v |   \n---+---+---\n   |   | %v ", p, p, p)
 		return gameBoard.X1Y1
 	}
-	if gameBoard.X3Y1 != "" && gameBoard.X3Y1 == gameBoard.X2Y2 && gameBoard.X3Y1 == gameBoard.X1Y3 {
+	if gameBoard.X3Y1 != "" && gameBoard.X3Y1 != " " && gameBoard.X3Y1 == gameBoard.X2Y2 && gameBoard.X3Y1 == gameBoard.X1Y3 {
 		p := gameBoard.X3Y1
 		fmt.Printf("\n\n   |   | %v \n---+---+---\n   | %v |   \n---+---+---\n %v |   |   ", p, p, p)
 		return gameBoard.X3Y1
@@ -189,6 +188,7 @@ func checkWinPrint(gameBoard board) string {
 	return ""
 }
 
+// utilities
 func printBoard(b board) {
 	fmt.Printf(`
  %s | %s | %s
@@ -198,35 +198,24 @@ func printBoard(b board) {
  %s | %s | %s
  `, b.X1Y1, b.X1Y2, b.X1Y3, b.X2Y1, b.X2Y2, b.X2Y3, b.X3Y1, b.X3Y2, b.X3Y3)
 }
+
 func printWholeBoard(b [9]board) {
 	fmt.Printf(`
-[0]           [1]           [2]           [3]
- %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s
----+---+--- # ---+---+--- # ---+---+--- # ---+---+--- # 
- %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s
----+---+--- # ---+---+--- # ---+---+--- # ---+---+--- # 
- %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s  #  %s | %s | %s
- `, b[0].X1Y1, b[0].X1Y2, b[0].X1Y3, b[1].X1Y1, b[1].X1Y2, b[1].X1Y3, b[2].X1Y1, b[2].X1Y2, b[2].X1Y3, b[3].X1Y1, b[3].X1Y2, b[3].X1Y3,
-		b[0].X2Y1, b[0].X2Y2, b[0].X2Y3, b[1].X2Y1, b[1].X2Y2, b[1].X2Y3, b[2].X2Y1, b[2].X2Y2, b[2].X2Y3, b[3].X2Y1, b[3].X2Y2, b[3].X2Y3,
-		b[0].X3Y1, b[0].X3Y2, b[0].X3Y3, b[1].X3Y1, b[1].X3Y2, b[1].X3Y3, b[2].X3Y1, b[2].X3Y2, b[2].X3Y3, b[3].X3Y1, b[3].X3Y2, b[3].X3Y3)
+[0]         // [1]         // [2]         // [3]         // [4]         // [5]         // [6]         // [7]         // [8]
+ %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s 
+---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- 
+ %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s 
+---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- // ---+---+--- 
+ %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s  //  %s | %s | %s 
+
+ `, b[0].X1Y1, b[0].X1Y2, b[0].X1Y3, b[1].X1Y1, b[1].X1Y2, b[1].X1Y3, b[2].X1Y1, b[2].X1Y2, b[2].X1Y3, b[3].X1Y1, b[3].X1Y2, b[3].X1Y3, b[4].X1Y1, b[4].X1Y2, b[4].X1Y3, b[5].X1Y1, b[5].X1Y2, b[5].X1Y3, b[6].X1Y1, b[6].X1Y2, b[6].X1Y3, b[7].X1Y1, b[7].X1Y2, b[7].X1Y3, b[8].X1Y1, b[8].X1Y2, b[8].X1Y3,
+		b[0].X2Y1, b[0].X2Y2, b[0].X2Y3, b[1].X2Y1, b[1].X2Y2, b[1].X2Y3, b[2].X2Y1, b[2].X2Y2, b[2].X2Y3, b[3].X2Y1, b[3].X2Y2, b[3].X2Y3, b[4].X2Y1, b[4].X2Y2, b[4].X2Y3, b[5].X2Y1, b[5].X2Y2, b[5].X2Y3, b[6].X2Y1, b[6].X2Y2, b[6].X2Y3, b[7].X2Y1, b[7].X2Y2, b[7].X2Y3, b[8].X2Y1, b[8].X2Y2, b[8].X2Y3,
+		b[0].X3Y1, b[0].X3Y2, b[0].X3Y3, b[1].X3Y1, b[1].X3Y2, b[1].X3Y3, b[2].X3Y1, b[2].X3Y2, b[2].X3Y3, b[3].X3Y1, b[3].X3Y2, b[3].X3Y3, b[4].X3Y1, b[4].X3Y2, b[4].X3Y3, b[5].X3Y1, b[5].X3Y2, b[5].X3Y3, b[6].X3Y1, b[6].X3Y2, b[6].X3Y3, b[7].X3Y1, b[7].X3Y2, b[7].X3Y3, b[8].X3Y1, b[8].X3Y2, b[8].X3Y3)
 }
 
 var ps = playerSymbols{P1: "X", P2: "O"}
 
 func main() {
-	/*// pointer test
-	var pointer *int
-	var pointed int
-
-	pointer = &pointed
-	fmt.Println("pointer: ", pointer)
-	fmt.Println("*pointer:", *pointer)
-	fmt.Println("&pointer:", &pointer)
-	fmt.Println("pointed: ", pointed)
-	fmt.Println("&pointed:", &pointed)
-
-	return*/
-
 	if !term.IsTerminal(int(syscall.Stdin)) {
 		fmt.Println("Terminal is not interactive! Consider using flags or environment variables!")
 		return
@@ -236,9 +225,8 @@ func main() {
 
 	var v int
 	var err error
-	//var gameEnd bool = false
 
-	// main menu
+	// main menu entries init
 	mainMenu := []menu{
 		{Entry: "Single Player"},
 		{Entry: "Multiplayer"},
@@ -351,93 +339,38 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		}
 		fmt.Printf("Chosen option %d\n", v)
 
-		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, &turnCounter, v, choicesHistory)
+		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, turnCounter, v, choicesHistory)
 		fmt.Println("after select: ")
 		printWholeBoard(gameBoard)
 		if turnCounter > 3 {
 			win := checkWin(gameBoard[0])
 			if win != "" {
-				//printBoard(gameBoard[0])
+				printBoard(gameBoard[0])
 				fmt.Printf("Player %s won.\n\n", win)
 				return
 			} else if turnCounter == 8 {
+				printBoard(gameBoard[0])
 				fmt.Printf("Draw.\n\n")
 				return
 			}
 		}
+		turnCounter++
 
 		// opponent random move
 		opponentChoice = rand.Intn(len(playerChoices))
-		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], opponent, &turnCounter, opponentChoice, choicesHistory)
+		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], opponent, turnCounter, opponentChoice, choicesHistory)
 		if turnCounter > 3 {
 			win := checkWin(gameBoard[0])
 			if win != "" {
-				//printBoard(gameBoard[0])
+				printBoard(gameBoard[0])
 				fmt.Printf("Player %s won.\n\n", win)
 				return
 			} else if turnCounter == 8 {
+				printBoard(gameBoard[0])
 				fmt.Printf("Draw.\n\n")
 				return
 			}
 		}
+		turnCounter++
 	}
-	//
-	//
-	//
-	//
-	/*gamePrompt := promptui.Select{
-		Label:     "",
-		Items:     playerChoices,
-		Templates: gameTemplate,
-		Size:      4,
-		Stdout:    &bellSkipper{},
-	}
-
-	v, _, err = gamePrompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
-	}
-	fmt.Printf("Chosen option %d\n", v)
-
-	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], &player, &turnCounter, v, choicesHistory)
-
-	// opponent random move
-	tmp := rand.Intn(len(playerChoices))
-	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[tmp], &player, &turnCounter, tmp, choicesHistory)
-
-	gamePrompt = promptui.Select{
-		Label:     "",
-		Items:     playerChoices,
-		Templates: gameTemplate,
-		Size:      4,
-		Stdout:    &bellSkipper{},
-	}
-	v, _, err = gamePrompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
-	}
-	fmt.Printf("Chosen option %d\n", v)
-
-	// NB: fix the selectMove(): we cannot use the index in choices, since they're not anymore in range [0, 8] but less
-	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], &player, &turnCounter, v, choicesHistory)
-
-	// opponent random move
-	tmp = rand.Intn(len(playerChoices))
-	gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[tmp], &player, &turnCounter, tmp, choicesHistory)
-
-	gamePrompt = promptui.Select{
-		Label:     "",
-		Items:     playerChoices,
-		Templates: gameTemplate,
-		Size:      4,
-		Stdout:    &bellSkipper{},
-	}
-	v, _, err = gamePrompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
-	}
-	fmt.Printf("Chosen option %d\n", v)*/
 }
