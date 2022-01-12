@@ -339,11 +339,26 @@ func main() {
 		{Entry: "Quit"},
 	}
 
-	/*singlePlayerMenu := []menu{
+	singlePlayerMenu := []menu{
 		{Entry: "Easy"},
 		{Entry: "Hard"},
 		{Entry: "Back"},
-	}*/
+	}
+
+	mainMenuTemplate := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "> {{ .Entry | cyan }}",
+		Inactive: " {{ .Entry | white }} ",
+		Selected: "> {{ .Entry | white }}",
+	}
+
+	mainMenuPrompt := promptui.Select{
+		Label:     "-------- Main Menu ---------",
+		Items:     mainMenu,
+		Templates: mainMenuTemplate,
+		Size:      4,
+		Stdout:    &bellSkipper{},
+	}
 
 	mainMenuTemplate := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
