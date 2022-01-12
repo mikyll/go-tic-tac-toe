@@ -7,23 +7,26 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"golang.org/x/term"
 )
 
-const MAINMENU = -1
-const SINGLEPLAYERMENU = -2
-const MULTIPLAYERMENU = -3
-const ABOUTMENU = -4
+const MAIN_MENU = -1
+const SINGLEPLAYER_MENU = -2
+const MULTIPLAYER_MENU = -3
+const ABOUT_MENU = -4
 const SINGLEPLAYER = 0
 const MULTIPLAYER = 1
 const ABOUT = 2
 const QUIT = 3
 const EASY = 0
 const HARD = 1
-const BACK = 2
+const BACK_SINGLEPLAYER = 2
 const LOCAL = 0
 const LAN = 1
+const BACK_MULTIPLAYER = 2
+const BACK_ABOUT = 0
 
 // Utility to skip the terminal bell sound, when selecting prompt options
 type bellSkipper struct{}
@@ -228,6 +231,25 @@ func printWholeBoard(b [9]board) {
 		b[0].X3Y1, b[0].X3Y2, b[0].X3Y3, b[1].X3Y1, b[1].X3Y2, b[1].X3Y3, b[2].X3Y1, b[2].X3Y2, b[2].X3Y3, b[3].X3Y1, b[3].X3Y2, b[3].X3Y3, b[4].X3Y1, b[4].X3Y2, b[4].X3Y3, b[5].X3Y1, b[5].X3Y2, b[5].X3Y3, b[6].X3Y1, b[6].X3Y2, b[6].X3Y3, b[7].X3Y1, b[7].X3Y2, b[7].X3Y3, b[8].X3Y1, b[8].X3Y2, b[8].X3Y3)
 }
 
+func pressAnyKey(message string) {
+	// switch stdin into 'raw' mode
+	fmt.Println(message)
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	b := make([]byte, 1)
+	_, err = os.Stdin.Read(b)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("the char %q was hit", string(b[0]))
+	term.Restore(int(os.Stdin.Fd()), oldState)
+}
+
 var ps = playerSymbols{P1: "X", P2: "O"}
 
 func game() {
@@ -382,7 +404,7 @@ func main() {
 	}
 
 	singlePlayerPrompt := promptui.Select{
-		Label:     "-------- Main Menu ---------",
+		Label:     "------ Single Player -------",
 		Items:     singlePlayerMenu,
 		Templates: singlePlayerTemplate,
 		Size:      4,
@@ -398,8 +420,8 @@ func main() {
 		}
 		switch state {
 		case SINGLEPLAYER:
-			state = SINGLEPLAYERMENU
-			for state == SINGLEPLAYERMENU {
+			state = SINGLEPLAYER_MENU
+			for state == SINGLEPLAYER_MENU {
 				state, _, err = singlePlayerPrompt.Run()
 				if err != nil {
 					fmt.Printf("Prompt failed %v\n", err)
@@ -408,37 +430,27 @@ func main() {
 				switch state {
 				case EASY:
 					game()
-					// switch stdin into 'raw' mode
-					fmt.Println("Press a key to continue ... ")
-					oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
-					if err != nil {
-						fmt.Println(err)
-						return
-					}
-
-					b := make([]byte, 1)
-					_, err = os.Stdin.Read(b)
-					if err != nil {
-						fmt.Println(err)
-						return
-					}
-					fmt.Printf("the char %q was hit", string(b[0]))
-					term.Restore(int(os.Stdin.Fd()), oldState)
-					state = MAINMENU
+					pressAnyKey("Press any key to continue ... ")
+					state = MAIN_MENU
 				case HARD:
-					// TO-DO
-					state = SINGLEPLAYERMENU
-				case BACK:
-					state = BACK
+					// TO-DO: add a parameter to game - bool?)
+					state = SINGLEPLAYER_MENU
+				case BACK_SINGLEPLAYER:
+					state = BACK_SINGLEPLAYER
 				}
 			}
-			state = MAINMENU
+			state = MAIN_MENU
 		case MULTIPLAYER:
 			// TO-DO
-			state = MAINMENU
+			state = MAIN_MENU
 		case ABOUT:
 			// TO-DO
-			state = MAINMENU
+			fmt.Printf("---------- About -----------\nTic-Tac-Toe\nApp developed by ")
+			color.Cyan("Michele Righi")
+
+			fmt.Printf("\nIf you like it, consider leaving a star on GitHub!\nLink: https://github.com/mikyll/go-tic-tac-toe\n\n\n")
+			pressAnyKey("Press any key to go back ... ")
+			state = MAIN_MENU
 		case QUIT:
 			return
 		}
