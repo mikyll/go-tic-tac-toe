@@ -103,8 +103,10 @@ func selectMove(gameBoard [9]board, updatedBoard board, player string, playerTur
 	choices[8].Y = 3
 
 	// remove choices already picked
-	for i := 0; moveHistory[i] != -1; i++ {
-		choices = remove(choices, moveHistory[i])
+	if playerTurn != 8 {
+		for i := 0; moveHistory[i] != -1; i++ {
+			choices = remove(choices, moveHistory[i])
+		}
 	}
 
 	return newBoard, choices, moveHistory
@@ -242,9 +244,9 @@ func main() {
 
 	mainMenuTemplate := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
-		Active:   "\U000027A4  {{ .Entry | cyan }}",
-		Inactive: "  {{ .Entry | white }} ",
-		Selected: "\U000027A4 {{ .Entry | white }}",
+		Active:   "> {{ .Entry | cyan }}",
+		Inactive: " {{ .Entry | white }} ",
+		Selected: "> {{ .Entry | white }}",
 	}
 
 	mainMenuPrompt := promptui.Select{
@@ -303,9 +305,9 @@ func main() {
 
 	gameTemplate := &promptui.SelectTemplates{
 		Label:    fmt.Sprintf("Turn %d, you play as %s. Choose your next move.", turnCounter, player),
-		Active:   "\U000027A4  ({{ .X | cyan }}, {{ .Y | green }})",
-		Inactive: "  ({{ .X | cyan }}, {{ .Y | green }})",
-		Selected: "\U000027A4 ({{ .X | cyan }}, {{ .Y | green }})",
+		Active:   "> ({{ .X | cyan }}, {{ .Y | green }})", // nice alternative: \U000027A4
+		Inactive: " ({{ .X | cyan }}, {{ .Y | green }})",
+		Selected: "> ({{ .X | cyan }}, {{ .Y | green }})",
 		Details: fmt.Sprintf(`
 ----------- Game -----------
 
@@ -345,7 +347,6 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		if turnCounter > 3 {
 			win := checkWin(gameBoard[0])
 			if win != "" {
-				printBoard(gameBoard[0])
 				fmt.Printf("Player %s won.\n\n", win)
 				return
 			} else if turnCounter == 8 {
@@ -362,7 +363,6 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		if turnCounter > 3 {
 			win := checkWin(gameBoard[0])
 			if win != "" {
-				printBoard(gameBoard[0])
 				fmt.Printf("Player %s won.\n\n", win)
 				return
 			} else if turnCounter == 8 {
