@@ -19,5 +19,5 @@ Simple **Tic Tac Toe CLI** game, written in Go, with different playing modes:
 - [colors](https://github.com/fatih/color)
 - [press any key (read one byte at a time from stdin)](https://stackoverflow.com/a/70627571)
 
-###### PS
+### PS
 This project is a meme.
