@@ -12,6 +12,9 @@ import (
 )
 
 const MAINMENU = -1
+const SINGLEPLAYERMENU = -2
+const MULTIPLAYERMENU = -3
+const ABOUTMENU = -4
 const SINGLEPLAYER = 0
 const MULTIPLAYER = 1
 const ABOUT = 2
@@ -293,7 +296,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		v, _, err = gamePrompt.Run()
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
-			return
+			os.Exit(1)
 		}
 		fmt.Printf("Chosen option %d\n", v)
 
@@ -345,14 +348,14 @@ func main() {
 	// main menu entries init
 	mainMenu := []menu{
 		{Entry: "Single Player"},
-		{Entry: "Multiplayer"},
+		{Entry: "Multiplayer (coming soon)"},
 		{Entry: "About"},
 		{Entry: "Quit"},
 	}
 
 	singlePlayerMenu := []menu{
 		{Entry: "Easy"},
-		{Entry: "Hard"},
+		{Entry: "Hard (coming soon)"},
 		{Entry: "Back"},
 	}
 
@@ -387,7 +390,7 @@ func main() {
 	}
 
 	state = -1
-	for i := 0; state == -1; i++ {
+	for state == -1 {
 		state, _, err = mainMenuPrompt.Run()
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
@@ -395,33 +398,47 @@ func main() {
 		}
 		switch state {
 		case SINGLEPLAYER:
-			state = -2
-			for i := 0; state == -2; i++ {
-				state, _, err = mainMenuPrompt.Run()
+			state = SINGLEPLAYERMENU
+			for state == SINGLEPLAYERMENU {
+				state, _, err = singlePlayerPrompt.Run()
 				if err != nil {
 					fmt.Printf("Prompt failed %v\n", err)
 					return
 				}
 				switch state {
-				case 0:
+				case EASY:
 					game()
-					state = -1
-				case 1:
-					state = -1
-				case 2:
-					state = -1
-				case 3:
-					return
+					// switch stdin into 'raw' mode
+					fmt.Println("Press a key to continue ... ")
+					oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+
+					b := make([]byte, 1)
+					_, err = os.Stdin.Read(b)
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
+					fmt.Printf("the char %q was hit", string(b[0]))
+					term.Restore(int(os.Stdin.Fd()), oldState)
+					state = MAINMENU
+				case HARD:
+					// TO-DO
+					state = SINGLEPLAYERMENU
+				case BACK:
+					state = BACK
 				}
 			}
-			game()
-			state = -1
+			state = MAINMENU
 		case MULTIPLAYER:
 			// TO-DO
-			state = -1
+			state = MAINMENU
 		case ABOUT:
 			// TO-DO
-			state = -1
+			state = MAINMENU
 		case QUIT:
 			return
 		}
