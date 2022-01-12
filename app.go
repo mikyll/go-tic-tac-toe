@@ -198,7 +198,7 @@ func printBoard(b board) {
  %s | %s | %s
 ---+---+---
  %s | %s | %s
- `, b.X1Y1, b.X1Y2, b.X1Y3, b.X2Y1, b.X2Y2, b.X2Y3, b.X3Y1, b.X3Y2, b.X3Y3)
+`, b.X1Y1, b.X1Y2, b.X1Y3, b.X2Y1, b.X2Y2, b.X2Y3, b.X3Y1, b.X3Y2, b.X3Y3)
 }
 
 func printWholeBoard(b [9]board) {
@@ -216,6 +216,110 @@ func printWholeBoard(b [9]board) {
 }
 
 var ps = playerSymbols{P1: "X", P2: "O"}
+
+func game() {
+	var v int
+	var err error
+
+	turnCounter := 0
+	choicesHistory := []int{-1, -1, -1, -1, -1, -1, -1, -1, -1}
+	player := ps.P1
+	opponent := ps.P2
+	gameBoard := [9]board{
+		{X: 1, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 1, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 1, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 3, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 3, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+	}
+
+	playerChoices := []board{
+		{X: 1, Y: 1, X1Y1: player, X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 1, Y: 2, X1Y1: " ", X1Y2: player, X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 1, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: player, X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: player, X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: player, X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 2, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: player, X3Y1: " ", X3Y2: " ", X3Y3: " "},
+		{X: 3, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: player, X3Y2: " ", X3Y3: " "},
+		{X: 3, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: player, X3Y3: " "},
+		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: player},
+	}
+
+	gameTemplate := &promptui.SelectTemplates{
+		Label:    fmt.Sprintf("Turn %d, you play as %s. Choose your next move.", turnCounter, player),
+		Active:   "> ({{ .X | cyan }}, {{ .Y | green }})", // nice alternative: \U000027A4
+		Inactive: " ({{ .X | cyan }}, {{ .Y | green }})",
+		Selected: "> ({{ .X | cyan }}, {{ .Y | green }})",
+		Details: fmt.Sprintf(`
+----------- Game -----------
+
+         {{ .X1Y1 }} | {{ .X1Y2 }} | {{ .X1Y3 }}  {{"1" | green}}
+        ---+---+---
+         {{ .X2Y1 }} | {{ .X2Y2 }} | {{ .X2Y3 }}  {{"2" | green}}
+        ---+---+---
+         {{ .X3Y1 }} | {{ .X3Y2 }} | {{ .X3Y3 }}  {{"3" | green}}
+         {{"1   2   3" | cyan}}
+
+----------------------------
+Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
+	}
+
+	opponentChoice := -1
+	// roll to decide who begins
+	for {
+		fmt.Println("Turn:", turnCounter)
+		gamePrompt := promptui.Select{
+			Label:     "",
+			Items:     playerChoices,
+			Templates: gameTemplate,
+			Size:      4,
+			Stdout:    &bellSkipper{},
+		}
+
+		v, _, err = gamePrompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
+		}
+		fmt.Printf("Chosen option %d\n", v)
+
+		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, turnCounter, v, choicesHistory)
+		if turnCounter > 3 {
+			win := checkWin(gameBoard[0])
+			if win != "" {
+				printBoard(gameBoard[0])
+				fmt.Printf("Player %s won.\n\n", win)
+				return
+			} else if turnCounter == 8 {
+				printBoard(gameBoard[0])
+				fmt.Printf("Draw.\n\n")
+				return
+			}
+		}
+		turnCounter++
+
+		// opponent random move
+		opponentChoice = rand.Intn(len(playerChoices))
+		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], opponent, turnCounter, opponentChoice, choicesHistory)
+		if turnCounter > 3 {
+			win := checkWin(gameBoard[0])
+			if win != "" {
+				printBoard(gameBoard[0])
+				fmt.Printf("Player %s won.\n\n", win)
+				return
+			} else if turnCounter == 8 {
+				printBoard(gameBoard[0])
+				fmt.Printf("Draw.\n\n")
+				return
+			}
+		}
+		turnCounter++
+	}
+}
 
 func main() {
 	if !term.IsTerminal(int(syscall.Stdin)) {
@@ -265,6 +369,9 @@ func main() {
 			return
 		}
 		switch v {
+		case 0:
+			game()
+			v = -1
 		case 1:
 			v = -1
 		case 2:
@@ -272,105 +379,5 @@ func main() {
 		case 3:
 			return
 		}
-	}
-
-	// game
-	turnCounter := 0
-	choicesHistory := []int{-1, -1, -1, -1, -1, -1, -1, -1, -1}
-	player := ps.P1
-	opponent := ps.P2
-	gameBoard := [9]board{
-		{X: 1, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 1, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 1, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 2, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 2, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 2, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 3, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 3, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-	}
-
-	playerChoices := []board{
-		{X: 1, Y: 1, X1Y1: player, X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 1, Y: 2, X1Y1: " ", X1Y2: player, X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 1, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: player, X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 2, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: player, X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 2, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: player, X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 2, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: player, X3Y1: " ", X3Y2: " ", X3Y3: " "},
-		{X: 3, Y: 1, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: player, X3Y2: " ", X3Y3: " "},
-		{X: 3, Y: 2, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: player, X3Y3: " "},
-		{X: 3, Y: 3, X1Y1: " ", X1Y2: " ", X1Y3: " ", X2Y1: " ", X2Y2: " ", X2Y3: " ", X3Y1: " ", X3Y2: " ", X3Y3: player},
-	}
-
-	gameTemplate := &promptui.SelectTemplates{
-		Label:    fmt.Sprintf("Turn %d, you play as %s. Choose your next move.", turnCounter, player),
-		Active:   "> ({{ .X | cyan }}, {{ .Y | green }})", // nice alternative: \U000027A4
-		Inactive: " ({{ .X | cyan }}, {{ .Y | green }})",
-		Selected: "> ({{ .X | cyan }}, {{ .Y | green }})",
-		Details: fmt.Sprintf(`
------------ Game -----------
-
-         {{ .X1Y1 }} | {{ .X1Y2 }} | {{ .X1Y3 }}  {{"1" | green}}
-        ---+---+---
-         {{ .X2Y1 }} | {{ .X2Y2 }} | {{ .X2Y3 }}  {{"2" | green}}
-        ---+---+---
-         {{ .X3Y1 }} | {{ .X3Y2 }} | {{ .X3Y3 }}  {{"3" | green}}
-         {{"1   2   3" | cyan}}
-
-----------------------------
-Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
-	}
-
-	opponentChoice := -1
-	// roll for who begins
-	for {
-		fmt.Println("Turn:", turnCounter)
-		gamePrompt := promptui.Select{
-			Label:     "",
-			Items:     playerChoices,
-			Templates: gameTemplate,
-			Size:      4,
-			Stdout:    &bellSkipper{},
-		}
-
-		v, _, err = gamePrompt.Run()
-		if err != nil {
-			fmt.Printf("Prompt failed %v\n", err)
-			return
-		}
-		fmt.Printf("Chosen option %d\n", v)
-
-		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, turnCounter, v, choicesHistory)
-		fmt.Println("after select: ")
-		printWholeBoard(gameBoard)
-		if turnCounter > 3 {
-			win := checkWin(gameBoard[0])
-			if win != "" {
-				fmt.Printf("Player %s won.\n\n", win)
-				return
-			} else if turnCounter == 8 {
-				printBoard(gameBoard[0])
-				fmt.Printf("Draw.\n\n")
-				return
-			}
-		}
-		turnCounter++
-
-		// opponent random move
-		opponentChoice = rand.Intn(len(playerChoices))
-		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], opponent, turnCounter, opponentChoice, choicesHistory)
-		if turnCounter > 3 {
-			win := checkWin(gameBoard[0])
-			if win != "" {
-				fmt.Printf("Player %s won.\n\n", win)
-				return
-			} else if turnCounter == 8 {
-				printBoard(gameBoard[0])
-				fmt.Printf("Draw.\n\n")
-				return
-			}
-		}
-		turnCounter++
 	}
 }
