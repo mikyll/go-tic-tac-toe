@@ -5,11 +5,16 @@ Simple Tic Tac Toe CLI game, written in Go, with different playing modes:
 - 2 players LAN.
 
 ### Roadmap
-- [ ] main menu (singleplayer, multiplayer: local, LAN)
-- [ ] create simple select gameplay, with random
+- [X] main menu (singleplayer, multiplayer: local, LAN)
+- [X] create simple select gameplay, with random opponent choices
 - [ ] add AI
-- [ ] add other AI modes (easy: non-deterministic, hard)
+- [ ] add multiplayer
+  - [ ] local
+  - [ ] LAN
 
 ### References
 - [promptui repo](https://github.com/manifoldco/promptui)
 - [promptui docs](https://pkg.go.dev/github.com/manifoldco/promptui)
+
+###### PS
+This project is a meme.
