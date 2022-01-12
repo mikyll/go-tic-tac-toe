@@ -11,6 +11,17 @@ import (
 	"golang.org/x/term"
 )
 
+const MAINMENU = -1
+const SINGLEPLAYER = 0
+const MULTIPLAYER = 1
+const ABOUT = 2
+const QUIT = 3
+const EASY = 0
+const HARD = 1
+const BACK = 2
+const LOCAL = 0
+const LAN = 1
+
 // Utility to skip the terminal bell sound, when selecting prompt options
 type bellSkipper struct{}
 
@@ -328,7 +339,7 @@ func main() {
 
 	rand.Seed(time.Now().UnixMilli())
 
-	var v int
+	var state int
 	var err error
 
 	// main menu entries init
@@ -360,37 +371,58 @@ func main() {
 		Stdout:    &bellSkipper{},
 	}
 
-	mainMenuTemplate := &promptui.SelectTemplates{
+	singlePlayerTemplate := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "> {{ .Entry | cyan }}",
 		Inactive: " {{ .Entry | white }} ",
 		Selected: "> {{ .Entry | white }}",
 	}
 
-	mainMenuPrompt := promptui.Select{
+	singlePlayerPrompt := promptui.Select{
 		Label:     "-------- Main Menu ---------",
-		Items:     mainMenu,
-		Templates: mainMenuTemplate,
+		Items:     singlePlayerMenu,
+		Templates: singlePlayerTemplate,
 		Size:      4,
 		Stdout:    &bellSkipper{},
 	}
 
-	v = -1
-	for i := 0; v == -1; i++ {
-		v, _, err = mainMenuPrompt.Run()
+	state = -1
+	for i := 0; state == -1; i++ {
+		state, _, err = mainMenuPrompt.Run()
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
 			return
 		}
-		switch v {
-		case 0:
+		switch state {
+		case SINGLEPLAYER:
+			state = -2
+			for i := 0; state == -2; i++ {
+				state, _, err = mainMenuPrompt.Run()
+				if err != nil {
+					fmt.Printf("Prompt failed %v\n", err)
+					return
+				}
+				switch state {
+				case 0:
+					game()
+					state = -1
+				case 1:
+					state = -1
+				case 2:
+					state = -1
+				case 3:
+					return
+				}
+			}
 			game()
-			v = -1
-		case 1:
-			v = -1
-		case 2:
-			v = -1
-		case 3:
+			state = -1
+		case MULTIPLAYER:
+			// TO-DO
+			state = -1
+		case ABOUT:
+			// TO-DO
+			state = -1
+		case QUIT:
 			return
 		}
 	}
