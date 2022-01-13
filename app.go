@@ -362,7 +362,7 @@ func main() {
 		return
 	}
 
-	rand.Seed(time.Now().UnixMilli())
+	rand.Seed(time.Now().UnixNano())
 
 	var state int
 	var err error
