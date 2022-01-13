@@ -15,7 +15,17 @@ Simple **Tic Tac Toe CLI** game, written in Go, with different playing modes:
 - 2 players LAN.
 
 ### Demo
-![Demo.gif](https://github.com/mikyll/go-tic-tac-toe/blob/main/gfx/demo.gif)
+
+<table>
+  <tr>
+    <td width="49.9%"><img src="https://github.com/mikyll/go-tic-tac-toe/blob/main/gfx/demo_singleplayer_easy.gif" alt="Single Player Easy"/></td>
+    <td width="49.9%"><img src="https://github.com/mikyll/go-tic-tac-toe/blob/main/gfx/demo_multiplayer_local.gif" alt="Multiplayer Local"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Single Player</b></td>
+    <td align="center"><b>Multiplayer</b></td>
+  </tr>
+</table>
 
 ### Download
 Clone the repo and run with ```go run .```
