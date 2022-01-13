@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/mikyll/go-tic-tac-toe/releases/latest"><img src="https://img.shields.io/github/downloads/mikyll/go-tic-tac-toe/total"/></a>
+  <!--<a href="https://github.com/mikyll/go-tic-tac-toe/releases/latest"><img src="https://img.shields.io/github/downloads/mikyll/go-tic-tac-toe/total"/></a>-->
   <a href="https://github.com/mikyll/go-tic-tac-toe/stargazers"><img src="https://img.shields.io/github/stars/mikyll/go-tic-tac-toe"/></a>
   <a href="https://github.com/mikyll/go-tic-tac-toe/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mikyll/go-tic-tac-toe"/></a>
   <a href="https://go.dev/"><img src="https://img.shields.io/badge/Go-00ADD8.svg?logo=go&logoColor=white"/></a>
