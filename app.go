@@ -27,6 +27,10 @@ const LOCAL = 0
 const LAN = 1
 const BACK_MULTIPLAYER = 2
 const BACK_ABOUT = 0
+const MODE_SP_EASY = 0
+const MODE_SP_HARD = 1
+const MODE_MP_LOCAL = 2
+const MODE_MP_LAN = 3
 
 // Utility to skip the terminal bell sound, when selecting prompt options
 type bellSkipper struct{}
@@ -252,7 +256,7 @@ func pressAnyKey(message string) {
 
 var ps = playerSymbols{P1: "X", P2: "O"}
 
-func game() {
+func game(mode int) {
 	var v int
 	var err error
 
@@ -306,7 +310,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	opponentChoice := -1
 	// roll to decide who begins
 	for {
-		fmt.Println("Turn:", turnCounter)
+		gameTemplate.Label = fmt.Sprintf("Turn %d, you play as %s. Choose your next move.", turnCounter, player)
 		gamePrompt := promptui.Select{
 			Label:     "",
 			Items:     playerChoices,
@@ -338,7 +342,34 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 		turnCounter++
 
 		// opponent random move
-		opponentChoice = rand.Intn(len(playerChoices))
+		switch mode {
+		case MODE_SP_EASY:
+			opponentChoice = rand.Intn(len(playerChoices))
+		case MODE_SP_HARD:
+			// TO-DO
+			return
+		case MODE_MP_LOCAL:
+			gameTemplate.Label = fmt.Sprintf("Turn %d, you play as %s. Choose your next move.", turnCounter, opponent)
+			gamePrompt := promptui.Select{
+				Label:     "",
+				Items:     playerChoices,
+				Templates: gameTemplate,
+				Size:      4,
+				Stdout:    &bellSkipper{},
+			}
+
+			v, _, err = gamePrompt.Run()
+			if err != nil {
+				fmt.Printf("Prompt failed %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("Chosen option %d\n", v)
+			opponentChoice = v
+		case MODE_MP_LAN:
+			// TO-DO
+			return
+		}
+
 		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], opponent, turnCounter, opponentChoice, choicesHistory)
 		if turnCounter > 3 {
 			win := checkWin(gameBoard[0])
@@ -370,7 +401,7 @@ func main() {
 	// main menu entries init
 	mainMenu := []menu{
 		{Entry: "Single Player"},
-		{Entry: "Multiplayer (coming soon)"},
+		{Entry: "Multiplayer"},
 		{Entry: "About"},
 		{Entry: "Quit"},
 	}
@@ -378,6 +409,12 @@ func main() {
 	singlePlayerMenu := []menu{
 		{Entry: "Easy"},
 		{Entry: "Hard (coming soon)"},
+		{Entry: "Back"},
+	}
+
+	multiPlayerMenu := []menu{
+		{Entry: "Local"},
+		{Entry: "LAN (coming soon)"},
 		{Entry: "Back"},
 	}
 
@@ -411,6 +448,21 @@ func main() {
 		Stdout:    &bellSkipper{},
 	}
 
+	multiPlayerTemplate := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "> {{ .Entry | cyan }}",
+		Inactive: " {{ .Entry | white }} ",
+		Selected: "> {{ .Entry | white }}",
+	}
+
+	multiPlayerPrompt := promptui.Select{
+		Label:     "------ Multi Player --------",
+		Items:     multiPlayerMenu,
+		Templates: multiPlayerTemplate,
+		Size:      4,
+		Stdout:    &bellSkipper{},
+	}
+
 	state = -1
 	for state == -1 {
 		state, _, err = mainMenuPrompt.Run()
@@ -429,11 +481,11 @@ func main() {
 				}
 				switch state {
 				case EASY:
-					game()
+					game(MODE_SP_EASY)
 					pressAnyKey("Press any key to continue ... ")
 					state = MAIN_MENU
 				case HARD:
-					// TO-DO: add a parameter to game - bool?)
+					// TO-DO
 					state = SINGLEPLAYER_MENU
 				case BACK_SINGLEPLAYER:
 					state = BACK_SINGLEPLAYER
@@ -441,7 +493,25 @@ func main() {
 			}
 			state = MAIN_MENU
 		case MULTIPLAYER:
-			// TO-DO
+			state = MULTIPLAYER_MENU
+			for state == MULTIPLAYER_MENU {
+				state, _, err = multiPlayerPrompt.Run()
+				if err != nil {
+					fmt.Printf("Prompt failed %v\n", err)
+					os.Exit(1)
+				}
+				switch state {
+				case LOCAL:
+					game(MODE_MP_LOCAL)
+					pressAnyKey("Press any key to continue ... ")
+					state = MAIN_MENU
+				case LAN:
+					// TO-DO
+					state = MULTIPLAYER_MENU
+				case BACK_MULTIPLAYER:
+					state = BACK_MULTIPLAYER
+				}
+			}
 			state = MAIN_MENU
 		case ABOUT:
 			// TO-DO
