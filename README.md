@@ -25,7 +25,7 @@ Clone the repo and run with ```go run .```
 - [X] create simple select gameplay, with random opponent choices
 - [ ] add AI
 - [ ] add multiplayer
-  - [ ] local
+  - [X] local
   - [ ] LAN
 
 ### References
