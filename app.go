@@ -488,8 +488,9 @@ func main() {
 		Stdout:    &bellSkipper{},
 	}
 
-	state = -1
-	for state == -1 {
+	state = MAIN_MENU
+	// main menu loop
+	for state == MAIN_MENU {
 		state, _, err = mainMenuPrompt.Run()
 		if err != nil {
 			fmt.Printf("Prompt failed %v\n", err)
@@ -498,6 +499,7 @@ func main() {
 		switch state {
 		case SINGLEPLAYER:
 			state = SINGLEPLAYER_MENU
+			// singleplayer loop
 			for state == SINGLEPLAYER_MENU {
 				state, _, err = singlePlayerPrompt.Run()
 				if err != nil {
@@ -510,9 +512,33 @@ func main() {
 					pressAnyKey("Press any key to continue ... ")
 					state = MAIN_MENU
 				case HARD:
+					// TO-DO
+					state = MAIN_MENU
+				case BACK_SINGLEPLAYER:
+					state = BACK_SINGLEPLAYER
+				}
+				state = MAIN_MENU
+			}
+			state = MAIN_MENU
+		case MULTIPLAYER:
+			state = MULTIPLAYER_MENU
+			// multiplayer loop
+			for state == MULTIPLAYER_MENU {
+				state, _, err = multiPlayerPrompt.Run()
+				if err != nil {
+					fmt.Printf("Prompt failed %v\n", err)
+					os.Exit(1)
+				}
+				switch state {
+				case LOCAL:
+					game(MODE_MP_LOCAL)
+					pressAnyKey("Press any key to continue ... ")
+					state = MAIN_MENU
+				case LAN:
+					// room loop
 					state = ROOM_MENU
 					for state == ROOM_MENU {
-						state, _, err = singlePlayerPrompt.Run()
+						state, _, err = roomPrompt.Run()
 						if err != nil {
 							fmt.Printf("Prompt failed %v\n", err)
 							os.Exit(1)
@@ -529,28 +555,6 @@ func main() {
 							state = BACK_SINGLEPLAYER
 						}
 					}
-					state = SINGLEPLAYER_MENU
-				case BACK_SINGLEPLAYER:
-					state = BACK_SINGLEPLAYER
-				}
-				state = MAIN_MENU
-			}
-			state = MAIN_MENU
-		case MULTIPLAYER:
-			state = MULTIPLAYER_MENU
-			for state == MULTIPLAYER_MENU {
-				state, _, err = multiPlayerPrompt.Run()
-				if err != nil {
-					fmt.Printf("Prompt failed %v\n", err)
-					os.Exit(1)
-				}
-				switch state {
-				case LOCAL:
-					game(MODE_MP_LOCAL)
-					pressAnyKey("Press any key to continue ... ")
-					state = MAIN_MENU
-				case LAN:
-					// TO-DO
 					state = MULTIPLAYER_MENU
 				case BACK_MULTIPLAYER:
 					state = BACK_MULTIPLAYER
