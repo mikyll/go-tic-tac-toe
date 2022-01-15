@@ -15,6 +15,7 @@ import (
 const MAIN_MENU = -1
 const SINGLEPLAYER_MENU = -2
 const MULTIPLAYER_MENU = -3
+const ROOM_MENU = -4
 const ABOUT_MENU = -4
 const SINGLEPLAYER = 0
 const MULTIPLAYER = 1
@@ -26,6 +27,9 @@ const BACK_SINGLEPLAYER = 2
 const LOCAL = 0
 const LAN = 1
 const BACK_MULTIPLAYER = 2
+const CREATE_ROOM = 0
+const JOIN_ROOM = 1
+const BACK_ROOM = 2
 const BACK_ABOUT = 0
 const MODE_SP_EASY = 0
 const MODE_SP_HARD = 1
@@ -418,6 +422,12 @@ func main() {
 		{Entry: "Back"},
 	}
 
+	roomMenu := []menu{
+		{Entry: "Create Game"},
+		{Entry: "Join Game"},
+		{Entry: "Back"},
+	}
+
 	mainMenuTemplate := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
 		Active:   "> {{ .Entry | cyan }}",
@@ -444,7 +454,7 @@ func main() {
 		Label:     "------ Single Player -------",
 		Items:     singlePlayerMenu,
 		Templates: singlePlayerTemplate,
-		Size:      4,
+		Size:      3,
 		Stdout:    &bellSkipper{},
 	}
 
@@ -459,7 +469,22 @@ func main() {
 		Label:     "------ Multi Player --------",
 		Items:     multiPlayerMenu,
 		Templates: multiPlayerTemplate,
-		Size:      4,
+		Size:      3,
+		Stdout:    &bellSkipper{},
+	}
+
+	roomTemplate := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "> {{ .Entry | cyan }}",
+		Inactive: " {{ .Entry | white }} ",
+		Selected: "> {{ .Entry | white }}",
+	}
+
+	roomPrompt := promptui.Select{
+		Label:     "------ Multi Player --------",
+		Items:     roomMenu,
+		Templates: roomTemplate,
+		Size:      3,
 		Stdout:    &bellSkipper{},
 	}
 
@@ -485,11 +510,30 @@ func main() {
 					pressAnyKey("Press any key to continue ... ")
 					state = MAIN_MENU
 				case HARD:
-					// TO-DO
+					state = ROOM_MENU
+					for state == ROOM_MENU {
+						state, _, err = singlePlayerPrompt.Run()
+						if err != nil {
+							fmt.Printf("Prompt failed %v\n", err)
+							os.Exit(1)
+						}
+						switch state {
+						case EASY:
+							game(MODE_SP_EASY)
+							pressAnyKey("Press any key to continue ... ")
+							state = MAIN_MENU
+						case HARD:
+							// TO-DO
+							state = SINGLEPLAYER_MENU
+						case BACK_SINGLEPLAYER:
+							state = BACK_SINGLEPLAYER
+						}
+					}
 					state = SINGLEPLAYER_MENU
 				case BACK_SINGLEPLAYER:
 					state = BACK_SINGLEPLAYER
 				}
+				state = MAIN_MENU
 			}
 			state = MAIN_MENU
 		case MULTIPLAYER:
