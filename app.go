@@ -354,7 +354,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 				message, _ := bufio.NewReader(c).ReadString('\n')
 				v, err = strconv.Atoi(strings.TrimSuffix(message, "\n"))
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println("Connection lost")
 					return
 				}
 
@@ -427,7 +427,7 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 				message, _ := bufio.NewReader(c).ReadString('\n')
 				v, err = strconv.Atoi(strings.TrimSuffix(message, "\n"))
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println("Connection lost")
 					return
 				}
 
