@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -264,12 +265,13 @@ func pressAnyKey(message string) {
 
 var ps = playerSymbols{P1: "X", P2: "O"}
 
-func game(mode int) {
+func game(mode int, first bool, c net.Conn) {
 	var v int
 	var err error
 
 	turnCounter := 0
 	choicesHistory := []int{-1, -1, -1, -1, -1, -1, -1, -1, -1}
+	// NB: player1 is always X, player2 is always O
 	player := ps.P1
 	opponent := ps.P2
 	gameBoard := [9]board{
@@ -316,7 +318,6 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	}
 
 	opponentChoice := -1
-	// roll to decide who begins
 	for {
 		gameTemplate.Label = fmt.Sprintf("Turn %d, you play as %s. Choose your next move.", turnCounter, player)
 		gamePrompt := promptui.Select{
@@ -327,13 +328,39 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 			Stdout:    &bellSkipper{},
 		}
 
-		v, _, err = gamePrompt.Run()
-		if err != nil {
-			fmt.Printf("Prompt failed %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Printf("Chosen option %d\n", v)
+		switch mode {
+		case MODE_SP_EASY, MODE_SP_HARD, MODE_MP_LOCAL:
+			v, _, err = gamePrompt.Run()
+			if err != nil {
+				fmt.Printf("Prompt failed %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Printf("Chosen option %d\n", v)
+		case MODE_MP_LAN:
+			if first {
+				v, _, err = gamePrompt.Run()
+				if err != nil {
+					fmt.Printf("Prompt failed %v\n", err)
+					os.Exit(1)
+				}
+				fmt.Printf("Chosen option %d\n", v)
 
+				// send to client
+				fmt.Fprintf(c, strconv.Itoa(v)+"\n")
+			} else {
+				// no prompt & receive move from client
+				printBoard(gameBoard[0])
+				fmt.Println("Waiting for opponent move...")
+				message, _ := bufio.NewReader(c).ReadString('\n')
+				v, err = strconv.Atoi(strings.TrimSuffix(message, "\n"))
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+
+				fmt.Println("Turn", strconv.Itoa(turnCounter), "chose"+strconv.Itoa(v))
+			}
+		}
 		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[v], player, turnCounter, v, choicesHistory)
 		if turnCounter > 3 {
 			win := checkWin(gameBoard[0])
@@ -374,10 +401,40 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 			fmt.Printf("Chosen option %d\n", v)
 			opponentChoice = v
 		case MODE_MP_LAN:
-			// TO-DO
-			return
-		}
+			gameTemplate.Label = fmt.Sprintf("Turn %d, you play as %s. Choose your next move.", turnCounter, opponent)
+			gamePrompt := promptui.Select{
+				Label:     "",
+				Items:     playerChoices,
+				Templates: gameTemplate,
+				Size:      4,
+				Stdout:    &bellSkipper{},
+			}
 
+			if !first {
+				v, _, err = gamePrompt.Run()
+				if err != nil {
+					fmt.Printf("Prompt failed %v\n", err)
+					os.Exit(1)
+				}
+				fmt.Printf("Chosen option %d\n", v)
+
+				// send to client
+				fmt.Fprintf(c, strconv.Itoa(v)+"\n")
+			} else {
+				// no prompt & receive move from client
+				printBoard(gameBoard[0])
+				fmt.Println("Waiting for opponent move...")
+				message, _ := bufio.NewReader(c).ReadString('\n')
+				v, err = strconv.Atoi(strings.TrimSuffix(message, "\n"))
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+
+				fmt.Println("Turn", strconv.Itoa(turnCounter), "chose"+strconv.Itoa(v))
+			}
+			opponentChoice = v
+		}
 		gameBoard, playerChoices, choicesHistory = selectMove(gameBoard, playerChoices[opponentChoice], opponent, turnCounter, opponentChoice, choicesHistory)
 		if turnCounter > 3 {
 			win := checkWin(gameBoard[0])
@@ -534,7 +591,7 @@ func main() {
 				}
 				switch state {
 				case EASY:
-					game(MODE_SP_EASY)
+					game(MODE_SP_EASY, true, nil)
 					pressAnyKey("Press any key to continue ... ")
 					state = MAIN_MENU
 				case HARD:
@@ -557,7 +614,7 @@ func main() {
 				}
 				switch state {
 				case LOCAL:
-					game(MODE_MP_LOCAL)
+					game(MODE_MP_LOCAL, true, nil)
 					pressAnyKey("Press any key to continue ... ")
 					state = MAIN_MENU
 				case LAN:
@@ -571,41 +628,44 @@ func main() {
 						}
 						switch state {
 						case CREATE_ROOM:
-							// TO-DO: listening on IP ... port ...
-							l, err := net.Listen("tcp", "localhost:4000")
+							// TO-DO: listening on IP:port ...
+							address := "localhost:4000"
+							l, err := net.Listen("tcp", address)
 							if err != nil {
 								fmt.Println(err)
 								return
 							}
+							fmt.Println("[Server] Waiting for connections on", address)
 
+							// Listen for Client connection
 							c, err := l.Accept()
 							if err != nil {
 								fmt.Println(err)
 								return
 							}
-							fmt.Println("Connection accepted, picking player turns...")
+							fmt.Println("[Server] Connection accepted, picking player turns...")
+
+							/*// auxiliary function
+							firstTurn := func() bool {
+								return rand.Intn(2) == 1
+							}*/
 
 							// turn picking
-
-							for {
-								netData, err := bufio.NewReader(c).ReadString('\n')
-								if err != nil {
-									fmt.Println(err)
-									return
-								}
-								if strings.TrimSpace(string(netData)) == "STOP" {
-									fmt.Println("Exiting TCP server!")
-									break
-								}
-
-								fmt.Print("-> ", string(netData))
-								t := time.Now()
-								myTime := t.Format(time.RFC3339) + "\n"
-								c.Write([]byte(myTime))
+							turn := rand.Intn(2) == 1
+							if turn {
+								fmt.Println("[Server] You play as", ps.P1)
+							} else {
+								fmt.Println("[Server] You play as", ps.P2)
 							}
 
+							// Send turn to Client
+							fmt.Fprintf(c, strconv.FormatBool(!turn)+"\n")
+
+							// Start game
+							game(MODE_MP_LAN, turn, c)
+
 							l.Close()
-							// NB if using a game() function it could be nice to use defer to close the listen
+							// NB if using a game() function it could be nice to use defer to close the listen(?)
 							state = ROOM_MENU
 						case JOIN_ROOM:
 							// TO-DO: enter&validate IP ...
@@ -615,27 +675,34 @@ func main() {
 								return
 							}
 
-							fmt.Println("IP:", ip) // test
-							// connect to IP
+							fmt.Println("[Client] Connection attempt to", ip+":4000")
+
+							// connect to Server
 							c, err := net.Dial("tcp", ip+":4000")
 							if err != nil {
 								fmt.Println(err)
 								return
 							}
 
-							for {
-								reader := bufio.NewReader(os.Stdin)
-								fmt.Print(">> ")
-								text, _ := reader.ReadString('\n')
-								fmt.Fprintf(c, text+"\n")
-
-								message, _ := bufio.NewReader(c).ReadString('\n')
-								fmt.Print("->: " + message)
-								if strings.TrimSpace(string(text)) == "STOP" {
-									fmt.Println("TCP client exiting...")
-									break
-								}
+							// Receive turn
+							message, _ := bufio.NewReader(c).ReadString('\n')
+							turn, err := strconv.ParseBool(strings.TrimSuffix(message, "\n"))
+							if err != nil {
+								fmt.Println(err)
+								return
 							}
+
+							//fmt.Println("[Client] Message Received:", message) // test
+
+							if turn {
+								fmt.Println("[Client] You play as", ps.P1)
+							} else {
+								fmt.Println("[Client] You play as", ps.P2)
+							}
+
+							// Start game
+							game(MODE_MP_LAN, turn, c)
+
 							state = ROOM_MENU
 						case BACK_ROOM:
 							state = MULTIPLAYER_MENU
