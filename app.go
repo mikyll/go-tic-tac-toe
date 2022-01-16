@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"net"
@@ -392,11 +393,11 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	}
 }
 
-func validateIP(address string) bool {
+func validateIP(address string) error {
 	if net.ParseIP(address) == nil {
-		return false
+		return errors.New("invalid IP address")
 	}
-	return true
+	return nil
 }
 
 func main() {
@@ -498,16 +499,17 @@ func main() {
 	}
 
 	ipTemplate := &promptui.PromptTemplates{
-		Prompt:  "{{ . }} ",
+		Prompt:  "{{ . }}: ",
 		Valid:   "{{ . | green }} ",
 		Invalid: "{{ . | red }} ",
-		Success: "{{ . | bold }} ",
+		Success: "{{ 'Connecting...' | green }} ",
 	}
 
 	ipPrompt := promptui.Prompt{
-		Label:     "Spicy Level",
+		Label:     "Connect to IP address",
 		Templates: ipTemplate,
 		Validate:  validateIP,
+		Stdout:    &bellSkipper{},
 	}
 
 	state = MAIN_MENU
@@ -578,6 +580,7 @@ func main() {
 								return
 							}
 							// connect to IP
+							fmt.Println("IP:", ip) // test
 							pressAnyKey("Join: Press any key to continue ... ")
 							state = ROOM_MENU
 						case BACK_ROOM:
