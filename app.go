@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"math/rand"
 	"net"
 	"os"
+	"strings"
 	"syscall"
 	"time"
 
@@ -570,7 +572,37 @@ func main() {
 						switch state {
 						case CREATE_ROOM:
 							// TO-DO: listening on IP ... port ...
-							pressAnyKey("Crete: Press any key to continue ... ")
+							l, err := net.Listen("tcp", "localhost:4000")
+							if err != nil {
+								fmt.Println(err)
+								return
+							}
+
+							c, err := l.Accept()
+							if err != nil {
+								fmt.Println(err)
+								return
+							}
+
+							for {
+								netData, err := bufio.NewReader(c).ReadString('\n')
+								if err != nil {
+									fmt.Println(err)
+									return
+								}
+								if strings.TrimSpace(string(netData)) == "STOP" {
+									fmt.Println("Exiting TCP server!")
+									break
+								}
+
+								fmt.Print("-> ", string(netData))
+								t := time.Now()
+								myTime := t.Format(time.RFC3339) + "\n"
+								c.Write([]byte(myTime))
+							}
+
+							l.Close()
+							// NB if using a game() function it could be nice to use defer to close the listen
 							state = ROOM_MENU
 						case JOIN_ROOM:
 							// TO-DO: enter&validate IP ...
@@ -580,8 +612,27 @@ func main() {
 								return
 							}
 							// connect to IP
+							c, err := net.Dial("tcp", ip+":4000")
+							if err != nil {
+								fmt.Println(err)
+								return
+							}
+
+							for {
+								reader := bufio.NewReader(os.Stdin)
+								fmt.Print(">> ")
+								text, _ := reader.ReadString('\n')
+								fmt.Fprintf(c, text+"\n")
+
+								message, _ := bufio.NewReader(c).ReadString('\n')
+								fmt.Print("->: " + message)
+								if strings.TrimSpace(string(text)) == "STOP" {
+									fmt.Println("TCP client exiting...")
+									break
+								}
+							}
+
 							fmt.Println("IP:", ip) // test
-							pressAnyKey("Join: Press any key to continue ... ")
 							state = ROOM_MENU
 						case BACK_ROOM:
 							state = MULTIPLAYER_MENU
