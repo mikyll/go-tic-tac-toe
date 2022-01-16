@@ -34,9 +34,9 @@ Clone the repo and run with ```go run .```
 - [X] main menu (singleplayer, multiplayer: local, LAN)
 - [X] create simple select gameplay, with random opponent choices
 - [ ] add AI
-- [ ] add multiplayer
+- [x] add multiplayer
   - [X] local
-  - [ ] LAN
+  - [x] LAN
 
 ### References
 - [promptui repo](https://github.com/manifoldco/promptui)
