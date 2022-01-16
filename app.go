@@ -583,6 +583,9 @@ func main() {
 								fmt.Println(err)
 								return
 							}
+							fmt.Println("Connection accepted, picking player turns...")
+
+							// turn picking
 
 							for {
 								netData, err := bufio.NewReader(c).ReadString('\n')
@@ -611,6 +614,8 @@ func main() {
 								fmt.Printf("Prompt failed %v\n", err)
 								return
 							}
+
+							fmt.Println("IP:", ip) // test
 							// connect to IP
 							c, err := net.Dial("tcp", ip+":4000")
 							if err != nil {
@@ -631,8 +636,6 @@ func main() {
 									break
 								}
 							}
-
-							fmt.Println("IP:", ip) // test
 							state = ROOM_MENU
 						case BACK_ROOM:
 							state = MULTIPLAYER_MENU
