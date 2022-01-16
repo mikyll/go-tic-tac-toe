@@ -45,6 +45,7 @@ Clone the repo and run with ```go run .```
 - [press any key (read one byte at a time from stdin)](https://stackoverflow.com/a/70627571)
 - [client/server tcp example](https://www.linode.com/docs/guides/developing-udp-and-tcp-clients-and-servers-in-go/)
 - [how to rewrite multiple lines to the output](https://stackoverflow.com/a/33509850)
+- [clear output](https://stackoverflow.com/questions/22891644/how-can-i-clear-the-terminal-screen-in-go)
 
 ### About the Project
 This project is a meme ✨
