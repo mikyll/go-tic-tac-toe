@@ -43,6 +43,7 @@ Clone the repo and run with ```go run .```
 - [promptui docs](https://pkg.go.dev/github.com/manifoldco/promptui)
 - [colors](https://github.com/fatih/color)
 - [press any key (read one byte at a time from stdin)](https://stackoverflow.com/a/70627571)
+- [client/server tcp example](https://www.linode.com/docs/guides/developing-udp-and-tcp-clients-and-servers-in-go/)
 
 ### About the Project
 This project is a meme ✨
