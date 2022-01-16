@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"net"
 	"os"
 	"syscall"
 	"time"
@@ -391,6 +392,13 @@ Selected Move: %s in ({{ .X | cyan }}, {{ .Y | green }})`, player),
 	}
 }
 
+func validateIP(address string) bool {
+	if net.ParseIP(address) == nil {
+		return false
+	}
+	return true
+}
+
 func main() {
 	if !term.IsTerminal(int(syscall.Stdin)) {
 		fmt.Println("Terminal is not interactive! Consider using flags or environment variables!")
@@ -401,6 +409,7 @@ func main() {
 
 	var state int
 	var err error
+	var ip string
 
 	// main menu entries init
 	mainMenu := []menu{
@@ -488,6 +497,19 @@ func main() {
 		Stdout:    &bellSkipper{},
 	}
 
+	ipTemplate := &promptui.PromptTemplates{
+		Prompt:  "{{ . }} ",
+		Valid:   "{{ . | green }} ",
+		Invalid: "{{ . | red }} ",
+		Success: "{{ . | bold }} ",
+	}
+
+	ipPrompt := promptui.Prompt{
+		Label:     "Spicy Level",
+		Templates: ipTemplate,
+		Validate:  validateIP,
+	}
+
 	state = MAIN_MENU
 	// main menu loop
 	for state == MAIN_MENU {
@@ -544,15 +566,22 @@ func main() {
 							os.Exit(1)
 						}
 						switch state {
-						case EASY:
-							game(MODE_SP_EASY)
-							pressAnyKey("Press any key to continue ... ")
-							state = MAIN_MENU
-						case HARD:
-							// TO-DO
-							state = SINGLEPLAYER_MENU
-						case BACK_SINGLEPLAYER:
-							state = BACK_SINGLEPLAYER
+						case CREATE_ROOM:
+							// TO-DO: listening on IP ... port ...
+							pressAnyKey("Crete: Press any key to continue ... ")
+							state = ROOM_MENU
+						case JOIN_ROOM:
+							// TO-DO: enter&validate IP ...
+							ip, err = ipPrompt.Run()
+							if err != nil {
+								fmt.Printf("Prompt failed %v\n", err)
+								return
+							}
+							// connect to IP
+							pressAnyKey("Join: Press any key to continue ... ")
+							state = ROOM_MENU
+						case BACK_ROOM:
+							state = MULTIPLAYER_MENU
 						}
 					}
 					state = MULTIPLAYER_MENU
