@@ -499,14 +499,14 @@ func main() {
 	}
 
 	ipTemplate := &promptui.PromptTemplates{
-		Prompt:  "{{ . }}: ",
-		Valid:   "{{ . | green }} ",
-		Invalid: "{{ . | red }} ",
-		Success: "{{ 'Connecting...' | green }} ",
+		Prompt:  "{{ . }}",
+		Valid:   "{{ . | green }}",
+		Invalid: "{{ . | red }}",
+		Success: "Connecting to ",
 	}
 
 	ipPrompt := promptui.Prompt{
-		Label:     "Connect to IP address",
+		Label:     "Connect to IP address: ",
 		Templates: ipTemplate,
 		Validate:  validateIP,
 		Stdout:    &bellSkipper{},
