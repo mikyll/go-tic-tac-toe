@@ -487,7 +487,7 @@ func main() {
 
 	multiPlayerMenu := []menu{
 		{Entry: "Local"},
-		{Entry: "LAN (coming soon)"},
+		{Entry: "LAN"},
 		{Entry: "Back"},
 	}
 
