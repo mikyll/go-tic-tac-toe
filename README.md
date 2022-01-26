@@ -49,4 +49,3 @@ Clone the repo and run with ```go run .```
 
 ### About the Project
 This project is a meme ✨
-
