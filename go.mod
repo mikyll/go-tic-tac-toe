@@ -1,6 +1,6 @@
 module app
 
-go 1.17
+go 1.20
 
 require github.com/manifoldco/promptui v0.9.0
 
